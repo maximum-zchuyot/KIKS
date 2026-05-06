@@ -178,6 +178,7 @@ export class GameEngine {
       this.width,
       this.controls.getGamma(),
       this.profile.sensitivity,
+      this.profile.tiltDeadzone,
     )
 
     const magnetTo = this.player.magnetActive

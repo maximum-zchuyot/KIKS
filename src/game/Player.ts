@@ -52,19 +52,23 @@ export class Player {
   }
 
   /**
-   * Section 5.3 movement formula.
-   *  - gyro: continuous tilt → x += tilt * sensitivity * dt
+   * Section 5.3 movement formula, calibrated for real phones:
+   *  - gyro: tilt above deadzone → continuous x velocity (sensitivity = px/s/deg)
    *  - touch: discrete steps land in targetX, x eases toward it
+   * Both inputs always run in parallel — they don't fight, they add.
    */
   update(
     dt: number,
     canvasWidth: number,
     tilt: number,
     sensitivity: number,
+    deadzone: number,
   ): void {
     const minX = this.radius
     const maxX = canvasWidth - this.radius
-    this.x += tilt * sensitivity * dt
+    const sign = tilt < 0 ? -1 : 1
+    const eff = Math.max(0, Math.abs(tilt) - deadzone) * sign
+    this.x += eff * sensitivity * dt
     this.x += (this.targetX - this.x) * Math.min(1, dt * 12)
     this.x = clamp(this.x, minX, maxX)
     this.targetX = clamp(this.targetX, minX, maxX)

@@ -24,7 +24,8 @@ export function PhotoUpload({ profileId, onDone, onBack }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [hint, setHint] = useState<string | null>(null)
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
 
@@ -216,10 +217,17 @@ export function PhotoUpload({ profileId, onDone, onBack }: Props) {
         <div className="flex w-full max-w-sm flex-col gap-4">
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => cameraInputRef.current?.click()}
             className="rounded-full bg-white px-8 py-5 text-2xl font-extrabold text-slate-900 shadow-2xl shadow-black/40 active:scale-95"
           >
-            📷 Выбрать фото
+            📷 Сфотографировать
+          </button>
+          <button
+            type="button"
+            onClick={() => galleryInputRef.current?.click()}
+            className="rounded-full bg-white/15 px-8 py-4 text-xl font-bold backdrop-blur active:scale-95"
+          >
+            🖼️ Из галереи
           </button>
           {error && (
             <p className="rounded-2xl bg-rose-700/70 px-4 py-2 text-sm">
@@ -275,7 +283,7 @@ export function PhotoUpload({ profileId, onDone, onBack }: Props) {
           <div className="flex w-full gap-3">
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => galleryInputRef.current?.click()}
               className="flex-1 rounded-full bg-black/30 px-4 py-3 text-base font-semibold backdrop-blur active:scale-95"
             >
               Другое фото
@@ -296,7 +304,15 @@ export function PhotoUpload({ profileId, onDone, onBack }: Props) {
       )}
 
       <input
-        ref={fileInputRef}
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="user"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      <input
+        ref={galleryInputRef}
         type="file"
         accept="image/*"
         className="hidden"

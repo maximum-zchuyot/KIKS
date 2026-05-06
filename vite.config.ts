@@ -10,5 +10,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), basicSsl()],
   server: {
     host: true,
+    // Permit cloudflared / ngrok hostnames during local dev tests.
+    allowedHosts: true,
   },
 })
