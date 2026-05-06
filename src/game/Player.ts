@@ -23,8 +23,11 @@ export class Player {
   emoji: string
   primary: string
   accent: string
+  /** Pulse aura while a magnet (special token) is active. */
+  magnetActive = false
   private photo: HTMLImageElement | null = null
   private photoReady = false
+  private clock = 0
 
   constructor(opts: PlayerOptions) {
     this.emoji = opts.emoji
@@ -65,10 +68,19 @@ export class Player {
     this.x += (this.targetX - this.x) * Math.min(1, dt * 12)
     this.x = clamp(this.x, minX, maxX)
     this.targetX = clamp(this.targetX, minX, maxX)
+    this.clock += dt
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.save()
+    if (this.magnetActive) {
+      const pulse = 6 + Math.sin(this.clock * 8) * 3
+      ctx.beginPath()
+      ctx.arc(this.x, this.y, this.radius + 14 + pulse, 0, Math.PI * 2)
+      ctx.fillStyle = this.accent
+      ctx.globalAlpha = 0.25
+      ctx.fill()
+    }
     ctx.beginPath()
     ctx.arc(this.x, this.y, this.radius + 6, 0, Math.PI * 2)
     ctx.fillStyle = this.accent

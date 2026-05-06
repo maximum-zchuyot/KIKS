@@ -11,50 +11,68 @@ type Props = {
   onExit: () => void
 }
 
+const TRANSITION_MS = 1700
+
 export function Game({ profileId, onExit }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const engineRef = useRef<GameEngine | null>(null)
   const [started, setStarted] = useState(false)
   const [score, setScore] = useState(0)
   const [collected, setCollected] = useState(0)
-  const [done, setDone] = useState(false)
+  const [levelIndex, setLevelIndex] = useState(0)
+  const [transitionToId, setTransitionToId] = useState<number | null>(null)
   const [debug, setDebug] = useState({ gamma: 0, hasGyro: false })
 
   const profile = PROFILES[profileId]
-  const level = LEVELS[0]
   const stored = useMemo(() => loadProfile(profileId), [profileId])
+
+  const liveScoreRef = useRef(0)
 
   useEffect(() => {
     if (!started || !canvasRef.current) return
+
     const engine = new GameEngine({
       canvas: canvasRef.current,
       profileId,
       photoBase64: stored.photoBase64,
-      level,
+      levels: LEVELS,
+      startLevelIndex: 0,
       onScore: (_delta, total, totalScore) => {
         setCollected(total)
         setScore(totalScore)
+        liveScoreRef.current = totalScore
       },
-      onComplete: () => {
-        setDone(true)
+      onLevelComplete: (levelId, hasNext) => {
         updateProfile(profileId, {
-          totalScore: stored.totalScore + level.tokensToComplete,
-          highestLevelReached: Math.max(stored.highestLevelReached, level.id),
+          totalScore: stored.totalScore + liveScoreRef.current,
+          highestLevelReached: Math.max(stored.highestLevelReached, levelId),
           lastPlayedAt: Date.now(),
         })
+        if (!hasNext) return
+        const nextIndex = engine.getCurrentLevelIndex() + 1
+        const nextId = LEVELS[nextIndex]?.id ?? null
+        setTransitionToId(nextId)
+        window.setTimeout(() => {
+          engine.loadLevel(nextIndex)
+          setLevelIndex(nextIndex)
+          setCollected(0)
+          setTransitionToId(null)
+        }, TRANSITION_MS)
       },
     })
     engineRef.current = engine
-    engine.start()
+
     const debugTimer = window.setInterval(() => {
       setDebug(engine.getDebug())
     }, 200)
+
+    engine.start()
     return () => {
       window.clearInterval(debugTimer)
       engine.stop()
       engineRef.current = null
     }
-  }, [started, profileId, level, stored])
+  }, [started, profileId, stored])
 
   const handleStart = async () => {
     await ensureOrientationPermission()
@@ -69,8 +87,10 @@ export function Game({ profileId, onExit }: Props) {
     setStarted(true)
   }
 
-  const target = level.tokensToComplete
-  const targetLabel = Number.isFinite(target) ? `/${target}` : ''
+  const currentLevel = LEVELS[levelIndex] ?? LEVELS[0]
+  const targetLabel = Number.isFinite(currentLevel.tokensToComplete)
+    ? `/${currentLevel.tokensToComplete}`
+    : ' ∞'
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-black">
@@ -87,9 +107,14 @@ export function Game({ profileId, onExit }: Props) {
         >
           ← Назад
         </button>
-        <div className="rounded-full bg-black/40 px-5 py-2 text-base font-extrabold tabular-nums backdrop-blur sm:text-lg">
-          {profile.emoji} {collected}
-          {targetLabel} · {score} ★
+        <div className="flex flex-col items-center gap-1">
+          <div className="rounded-full bg-black/40 px-4 py-1 text-xs font-bold uppercase tracking-wider backdrop-blur">
+            Уровень {currentLevel.id}
+          </div>
+          <div className="rounded-full bg-black/40 px-5 py-2 text-base font-extrabold tabular-nums backdrop-blur sm:text-lg">
+            {profile.emoji} {collected}
+            {targetLabel} · {score} ★
+          </div>
         </div>
         <div className="w-16" aria-hidden="true" />
       </div>
@@ -120,7 +145,7 @@ export function Game({ profileId, onExit }: Props) {
             Привет, {profile.displayName}!
           </h2>
           <p className="max-w-xs text-base text-white/90">
-            Наклоняй телефон или тапай слева/справа, чтобы ловить монетки.
+            Наклоняй телефон или тапай слева/справа, чтобы ловить.
           </p>
           <button
             type="button"
@@ -132,20 +157,13 @@ export function Game({ profileId, onExit }: Props) {
         </div>
       )}
 
-      {done && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-black/65 p-8 text-center text-white backdrop-blur-sm">
-          <div className="animate-bounce text-7xl">🎉</div>
-          <h2 className="text-5xl font-black tracking-tight">Молодец!</h2>
-          <p className="text-xl">
-            Уровень {level.id} пройден · {score} ★
-          </p>
-          <button
-            type="button"
-            onClick={onExit}
-            className="rounded-full bg-white px-8 py-4 text-xl font-extrabold text-slate-900 shadow-xl active:scale-95"
-          >
-            На главную
-          </button>
+      {transitionToId !== null && (
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/35 text-white backdrop-blur-sm">
+          <div className="animate-bounce text-6xl">🎉</div>
+          <h2 className="text-5xl font-black tracking-tight">
+            Уровень {transitionToId}!
+          </h2>
+          <p className="text-lg font-semibold text-white/90">Поехали дальше</p>
         </div>
       )}
     </div>

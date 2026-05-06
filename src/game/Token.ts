@@ -1,12 +1,6 @@
 import type { TokenType } from './levels'
 import type { Player } from './Player'
 
-const SPRITES: Record<TokenType, string> = {
-  basic: '🪙',
-  bonus: '⭐',
-  special: '🌈',
-}
-
 const VALUES: Record<TokenType, number> = {
   basic: 1,
   bonus: 3,
@@ -18,14 +12,19 @@ export interface TokenOptions {
   y: number
   type: TokenType
   fallSpeed: number
+  sprite: string
 }
+
+const MAGNET_SPEED = 900
 
 export class Token {
   x: number
   y: number
+  vx = 0
+  vy: number
   radius = 28
   type: TokenType
-  fallSpeed: number
+  sprite: string
   spin = (Math.random() - 0.5) * 2
   age = 0
 
@@ -33,15 +32,25 @@ export class Token {
     this.x = opts.x
     this.y = opts.y
     this.type = opts.type
-    this.fallSpeed = opts.fallSpeed
+    this.sprite = opts.sprite
+    this.vy = opts.fallSpeed
   }
 
   get value(): number {
     return VALUES[this.type]
   }
 
-  update(dt: number): void {
-    this.y += this.fallSpeed * dt
+  /** When `magnetTo` is set, the token is pulled toward that point at a fixed speed. */
+  update(dt: number, magnetTo?: { x: number; y: number }): void {
+    if (magnetTo) {
+      const dx = magnetTo.x - this.x
+      const dy = magnetTo.y - this.y
+      const dist = Math.hypot(dx, dy) || 1
+      this.vx = (dx / dist) * MAGNET_SPEED
+      this.vy = (dy / dist) * MAGNET_SPEED
+    }
+    this.x += this.vx * dt
+    this.y += this.vy * dt
     this.age += dt
   }
 
@@ -63,7 +72,7 @@ export class Token {
     ctx.font = `${this.radius * 1.7}px "Segoe UI Emoji","Apple Color Emoji",sans-serif`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(SPRITES[this.type], 0, 2)
+    ctx.fillText(this.sprite, 0, 2)
     ctx.restore()
   }
 }

@@ -5,6 +5,10 @@ import type { ControlsAPI } from './controls'
 import { Player } from './Player'
 import { Token } from './Token'
 import type { LevelConfig, TokenType } from './levels'
+import { THEMES } from './themes'
+import type { Theme } from './themes'
+import { createBackground } from './Background'
+import type { Background } from './Background'
 
 interface Particle {
   x: number
@@ -21,19 +25,23 @@ export interface GameEngineConfig {
   profileId: ProfileId
   /** 256×256 PNG data URL or null — drawn inside the player's circle. */
   photoBase64: string | null
-  level: LevelConfig
-  onScore: (delta: number, totalCollected: number, totalScore: number) => void
-  onComplete: () => void
+  levels: LevelConfig[]
+  startLevelIndex: number
+  onScore: (delta: number, totalCollectedThisLevel: number, totalScore: number) => void
+  onLevelComplete: (levelId: number, hasNext: boolean) => void
 }
 
 const PARTICLE_LIFE = 0.55
+const MAGNET_DURATION_MS = 3000
 
 export class GameEngine {
   private cfg: GameEngineConfig
   private ctx: CanvasRenderingContext2D
   private profile: ProfileSettings
+  private theme: Theme
   private player: Player
   private controls: ControlsAPI
+  private background: Background
 
   private rafId = 0
   private running = false
@@ -43,9 +51,11 @@ export class GameEngine {
   private tokens: Token[] = []
   private particles: Particle[] = []
 
+  private levelIndex: number
   private collected = 0
   private score = 0
   private completed = false
+  private magnetUntilTs = 0
 
   private width = 0
   private height = 0
@@ -56,6 +66,13 @@ export class GameEngine {
     if (!ctx) throw new Error('2D canvas context unavailable')
     this.ctx = ctx
     this.profile = PROFILES[cfg.profileId]
+    this.theme = THEMES[cfg.profileId]
+    this.background = createBackground(this.theme.background)
+    this.levelIndex = Math.max(
+      0,
+      Math.min(cfg.levels.length - 1, cfg.startLevelIndex),
+    )
+
     this.player = new Player({
       emoji: this.profile.emoji,
       primary: this.profile.primary,
@@ -78,7 +95,30 @@ export class GameEngine {
     this.rafId = requestAnimationFrame(this.tick)
   }
 
-  /** Live state for debug overlays. */
+  stop(): void {
+    this.running = false
+    cancelAnimationFrame(this.rafId)
+    this.controls.destroy()
+    window.removeEventListener('resize', this.handleResize)
+  }
+
+  /** Switch to a different level index, resetting per-level state but keeping
+   *  the running player position and total score. */
+  loadLevel(index: number): void {
+    if (index < 0 || index >= this.cfg.levels.length) return
+    this.levelIndex = index
+    this.collected = 0
+    this.spawnAcc = 0
+    this.tokens = []
+    this.particles = []
+    this.completed = false
+    this.magnetUntilTs = 0
+  }
+
+  getCurrentLevelIndex(): number {
+    return this.levelIndex
+  }
+
   getDebug(): { gamma: number; hasGyro: boolean } {
     return {
       gamma: this.controls.getGamma(),
@@ -86,11 +126,8 @@ export class GameEngine {
     }
   }
 
-  stop(): void {
-    this.running = false
-    cancelAnimationFrame(this.rafId)
-    this.controls.destroy()
-    window.removeEventListener('resize', this.handleResize)
+  private get currentLevel(): LevelConfig {
+    return this.cfg.levels[this.levelIndex] ?? this.cfg.levels[0]
   }
 
   private handleResize = (): void => {
@@ -105,6 +142,7 @@ export class GameEngine {
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     this.width = w
     this.height = h
+    this.background.resize(w, h)
     this.player.y = h * 0.78
     if (this.player.x === 0) {
       this.player.x = w / 2
@@ -116,20 +154,25 @@ export class GameEngine {
     if (!this.running) return
     const dt = Math.min((ts - this.lastTs) / 1000, 0.1)
     this.lastTs = ts
-    this.update(dt)
+    this.update(dt, ts)
     this.render()
     if (this.running) this.rafId = requestAnimationFrame(this.tick)
   }
 
-  private update(dt: number): void {
+  private update(dt: number, nowTs: number): void {
+    this.background.update(dt)
+
+    const level = this.currentLevel
+
     if (!this.completed) {
       this.spawnAcc += dt * 1000
-      while (this.spawnAcc >= this.cfg.level.spawnIntervalMs) {
-        this.spawnAcc -= this.cfg.level.spawnIntervalMs
-        this.spawnToken()
+      while (this.spawnAcc >= level.spawnIntervalMs) {
+        this.spawnAcc -= level.spawnIntervalMs
+        this.spawnToken(level)
       }
     }
 
+    this.player.magnetActive = this.magnetUntilTs > nowTs
     this.player.update(
       dt,
       this.width,
@@ -137,13 +180,16 @@ export class GameEngine {
       this.profile.sensitivity,
     )
 
-    for (const t of this.tokens) t.update(dt)
+    const magnetTo = this.player.magnetActive
+      ? { x: this.player.x, y: this.player.y }
+      : undefined
+    for (const t of this.tokens) t.update(dt, magnetTo)
 
     if (!this.completed) {
       const remaining: Token[] = []
       for (const t of this.tokens) {
         if (t.collidesWith(this.player)) {
-          this.collect(t)
+          this.collect(t, nowTs)
         } else if (!t.isOffscreen(this.height)) {
           remaining.push(t)
         }
@@ -162,33 +208,38 @@ export class GameEngine {
     this.particles = this.particles.filter((p) => p.life > 0)
   }
 
-  private collect(t: Token): void {
+  private collect(t: Token, nowTs: number): void {
     this.collected += 1
     this.score += t.value
     this.spawnParticles(t.x, t.y, this.profile.accent)
+    if (t.type === 'special') {
+      this.magnetUntilTs = nowTs + MAGNET_DURATION_MS
+    }
     this.cfg.onScore(t.value, this.collected, this.score)
+
+    const target = this.currentLevel.tokensToComplete
     if (
       !this.completed &&
-      this.collected >= this.cfg.level.tokensToComplete
+      Number.isFinite(target) &&
+      this.collected >= target
     ) {
       this.completed = true
-      this.cfg.onComplete()
+      const hasNext = this.levelIndex < this.cfg.levels.length - 1
+      this.cfg.onLevelComplete(this.currentLevel.id, hasNext)
     }
   }
 
-  private spawnToken(): void {
+  private spawnToken(level: LevelConfig): void {
     const margin = 40
     const x = margin + Math.random() * Math.max(0, this.width - margin * 2)
-    const type = pickWeighted(
-      this.cfg.level.tokenTypes,
-      this.cfg.level.weights,
-    )
+    const type = pickWeighted(level.tokenTypes, level.weights)
     this.tokens.push(
       new Token({
         x,
         y: -32,
         type,
-        fallSpeed: this.cfg.level.fallSpeed,
+        fallSpeed: level.fallSpeed,
+        sprite: this.theme.tokenSprite[type],
       }),
     )
   }
@@ -220,6 +271,8 @@ export class GameEngine {
     grad.addColorStop(1, this.profile.bgTo)
     ctx.fillStyle = grad
     ctx.fillRect(0, 0, w, h)
+
+    this.background.draw(ctx)
 
     for (const t of this.tokens) t.draw(ctx)
     this.player.draw(ctx)
