@@ -2,6 +2,7 @@ export type TapSide = 'left' | 'right'
 
 export interface ControlsAPI {
   getGamma: () => number
+  hasGyro: () => boolean
   destroy: () => void
 }
 
@@ -13,11 +14,14 @@ export function createControls(
   canvas: HTMLCanvasElement,
   onTap: (side: TapSide) => void,
 ): ControlsAPI {
-  const state = { gamma: 0 }
+  const state = { gamma: 0, gyroSeen: false }
 
   const onOrientation = (e: DeviceOrientationEvent) => {
     const g = e.gamma
-    if (typeof g === 'number' && Number.isFinite(g)) state.gamma = g
+    if (typeof g === 'number' && Number.isFinite(g)) {
+      state.gamma = g
+      state.gyroSeen = true
+    }
   }
 
   const onTouchStart = (e: TouchEvent) => {
@@ -32,6 +36,7 @@ export function createControls(
 
   return {
     getGamma: () => state.gamma,
+    hasGyro: () => state.gyroSeen,
     destroy: () => {
       window.removeEventListener('deviceorientation', onOrientation)
       canvas.removeEventListener('touchstart', onTouchStart)

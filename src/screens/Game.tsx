@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { GameEngine } from '../game/GameEngine'
 import { LEVELS } from '../game/levels'
 import { ensureOrientationPermission } from '../game/controls'
 import { PROFILES } from '../types'
 import type { ProfileId } from '../types'
+import { loadProfile, updateProfile } from '../lib/storage'
 
 type Props = {
   profileId: ProfileId
@@ -17,29 +18,43 @@ export function Game({ profileId, onExit }: Props) {
   const [score, setScore] = useState(0)
   const [collected, setCollected] = useState(0)
   const [done, setDone] = useState(false)
+  const [debug, setDebug] = useState({ gamma: 0, hasGyro: false })
 
   const profile = PROFILES[profileId]
   const level = LEVELS[0]
+  const stored = useMemo(() => loadProfile(profileId), [profileId])
 
   useEffect(() => {
     if (!started || !canvasRef.current) return
     const engine = new GameEngine({
       canvas: canvasRef.current,
       profileId,
+      photoBase64: stored.photoBase64,
       level,
       onScore: (_delta, total, totalScore) => {
         setCollected(total)
         setScore(totalScore)
       },
-      onComplete: () => setDone(true),
+      onComplete: () => {
+        setDone(true)
+        updateProfile(profileId, {
+          totalScore: stored.totalScore + level.tokensToComplete,
+          highestLevelReached: Math.max(stored.highestLevelReached, level.id),
+          lastPlayedAt: Date.now(),
+        })
+      },
     })
     engineRef.current = engine
     engine.start()
+    const debugTimer = window.setInterval(() => {
+      setDebug(engine.getDebug())
+    }, 200)
     return () => {
+      window.clearInterval(debugTimer)
       engine.stop()
       engineRef.current = null
     }
-  }, [started, profileId, level])
+  }, [started, profileId, level, stored])
 
   const handleStart = async () => {
     await ensureOrientationPermission()
@@ -78,6 +93,20 @@ export function Game({ profileId, onExit }: Props) {
         </div>
         <div className="w-16" aria-hidden="true" />
       </div>
+
+      {started && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center text-white">
+          <div
+            className={`rounded-full px-3 py-1 text-xs font-mono tabular-nums backdrop-blur ${
+              debug.hasGyro ? 'bg-emerald-600/60' : 'bg-rose-600/70'
+            }`}
+          >
+            {debug.hasGyro
+              ? `gyro γ ${debug.gamma.toFixed(1)}°`
+              : 'gyro: нет событий'}
+          </div>
+        </div>
+      )}
 
       {!started && (
         <div

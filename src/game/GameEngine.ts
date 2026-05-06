@@ -19,6 +19,8 @@ interface Particle {
 export interface GameEngineConfig {
   canvas: HTMLCanvasElement
   profileId: ProfileId
+  /** 256×256 PNG data URL or null — drawn inside the player's circle. */
+  photoBase64: string | null
   level: LevelConfig
   onScore: (delta: number, totalCollected: number, totalScore: number) => void
   onComplete: () => void
@@ -58,6 +60,7 @@ export class GameEngine {
       emoji: this.profile.emoji,
       primary: this.profile.primary,
       accent: this.profile.accent,
+      photoBase64: cfg.photoBase64,
     })
     this.controls = createControls(cfg.canvas, (side) => {
       const step = side === 'left' ? -this.profile.moveStep : this.profile.moveStep
@@ -73,6 +76,14 @@ export class GameEngine {
     this.running = true
     this.lastTs = performance.now()
     this.rafId = requestAnimationFrame(this.tick)
+  }
+
+  /** Live state for debug overlays. */
+  getDebug(): { gamma: number; hasGyro: boolean } {
+    return {
+      gamma: this.controls.getGamma(),
+      hasGyro: this.controls.hasGyro(),
+    }
   }
 
   stop(): void {
