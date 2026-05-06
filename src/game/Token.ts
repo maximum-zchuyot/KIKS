@@ -27,12 +27,15 @@ export class Token {
   sprite: string
   spin = (Math.random() - 0.5) * 2
   age = 0
+  /** Original fall speed, used to ease velocity back after a magnet ends. */
+  private fallSpeed: number
 
   constructor(opts: TokenOptions) {
     this.x = opts.x
     this.y = opts.y
     this.type = opts.type
     this.sprite = opts.sprite
+    this.fallSpeed = opts.fallSpeed
     this.vy = opts.fallSpeed
   }
 
@@ -40,7 +43,12 @@ export class Token {
     return VALUES[this.type]
   }
 
-  /** When `magnetTo` is set, the token is pulled toward that point at a fixed speed. */
+  /**
+   * When `magnetTo` is set the token is yanked toward that point at a fixed
+   * speed. When it isn't, we ease velocity back toward the natural straight-
+   * down fall — otherwise tokens that were mid-flight when the magnet expired
+   * keep sailing off-axis forever and pile up off-screen.
+   */
   update(dt: number, magnetTo?: { x: number; y: number }): void {
     if (magnetTo) {
       const dx = magnetTo.x - this.x
@@ -48,14 +56,24 @@ export class Token {
       const dist = Math.hypot(dx, dy) || 1
       this.vx = (dx / dist) * MAGNET_SPEED
       this.vy = (dy / dist) * MAGNET_SPEED
+    } else {
+      const k = Math.min(1, dt * 4)
+      this.vx += (0 - this.vx) * k
+      this.vy += (this.fallSpeed - this.vy) * k
     }
     this.x += this.vx * dt
     this.y += this.vy * dt
     this.age += dt
   }
 
-  isOffscreen(canvasHeight: number): boolean {
-    return this.y - this.radius > canvasHeight
+  isOffscreen(canvasWidth: number, canvasHeight: number): boolean {
+    const r = this.radius
+    return (
+      this.y - r > canvasHeight ||
+      this.y + r < -200 ||
+      this.x + r < -200 ||
+      this.x - r > canvasWidth + 200
+    )
   }
 
   collidesWith(p: Player): boolean {

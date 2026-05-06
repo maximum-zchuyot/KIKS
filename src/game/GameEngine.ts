@@ -191,13 +191,13 @@ export class GameEngine {
       for (const t of this.tokens) {
         if (t.collidesWith(this.player)) {
           this.collect(t, nowTs)
-        } else if (!t.isOffscreen(this.height)) {
+        } else if (!t.isOffscreen(this.width, this.height)) {
           remaining.push(t)
         }
       }
       this.tokens = remaining
     } else {
-      this.tokens = this.tokens.filter((t) => !t.isOffscreen(this.height))
+      this.tokens = this.tokens.filter((t) => !t.isOffscreen(this.width, this.height))
     }
 
     for (const p of this.particles) {
