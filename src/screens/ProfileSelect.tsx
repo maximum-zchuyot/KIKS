@@ -1,21 +1,16 @@
-export type Profile = 'Атай' | 'Эмили'
+import { PROFILES } from '../types'
+import type { ProfileId } from '../types'
 
 type Props = {
-  onSelect: (profile: Profile) => void
+  onSelect: (profile: ProfileId) => void
 }
 
-const profiles: { name: Profile; emoji: string; gradient: string }[] = [
-  {
-    name: 'Атай',
-    emoji: '🦁',
-    gradient: 'from-amber-400 via-orange-500 to-rose-500',
-  },
-  {
-    name: 'Эмили',
-    emoji: '🦄',
-    gradient: 'from-pink-400 via-fuchsia-500 to-violet-500',
-  },
-]
+const order: ProfileId[] = ['atai', 'emily']
+
+const cardGradient: Record<ProfileId, string> = {
+  atai: 'from-amber-400 via-orange-500 to-rose-500',
+  emily: 'from-pink-400 via-fuchsia-500 to-violet-500',
+}
 
 export function ProfileSelect({ onSelect }: Props) {
   return (
@@ -28,24 +23,27 @@ export function ProfileSelect({ onSelect }: Props) {
       </header>
 
       <div className="flex w-full max-w-md flex-col gap-5">
-        {profiles.map((p) => (
-          <button
-            key={p.name}
-            type="button"
-            onClick={() => onSelect(p.name)}
-            className={`group relative flex h-32 w-full items-center justify-center gap-4 overflow-hidden rounded-3xl bg-gradient-to-br ${p.gradient} shadow-2xl shadow-black/40 ring-1 ring-white/20 transition-transform active:scale-[0.97]`}
-          >
-            <span
-              aria-hidden="true"
-              className="text-6xl drop-shadow-lg sm:text-7xl"
+        {order.map((id) => {
+          const p = PROFILES[id]
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => onSelect(id)}
+              className={`group relative flex h-32 w-full items-center justify-center gap-4 overflow-hidden rounded-3xl bg-gradient-to-br ${cardGradient[id]} shadow-2xl shadow-black/40 ring-1 ring-white/20 transition-transform active:scale-[0.97]`}
             >
-              {p.emoji}
-            </span>
-            <span className="text-3xl font-extrabold tracking-tight drop-shadow-md sm:text-4xl">
-              {p.name}
-            </span>
-          </button>
-        ))}
+              <span
+                aria-hidden="true"
+                className="text-6xl drop-shadow-lg sm:text-7xl"
+              >
+                {p.emoji}
+              </span>
+              <span className="text-3xl font-extrabold tracking-tight drop-shadow-md sm:text-4xl">
+                {p.displayName}
+              </span>
+            </button>
+          )
+        })}
       </div>
     </main>
   )
