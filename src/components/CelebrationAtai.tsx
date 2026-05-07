@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ProfileSettings } from '../types'
+import { pickCelebrationClip, playClip } from '../lib/audio'
 
 interface Props {
   profile: ProfileSettings
@@ -43,15 +44,17 @@ export function CelebrationAtai({
   const trampolineRef = useRef<HTMLDivElement>(null)
   const sourceRef = useRef<HTMLDivElement>(null)
 
-  // phase + auto-skip timers
+  // phase + auto-skip timers + parent voice clip
   useEffect(() => {
     const phaseTimer = window.setTimeout(() => setPhase('bouncing'), FEEDING_MS)
     const endTimer = window.setTimeout(onSkip, DURATION_MS)
+    const clip = pickCelebrationClip(profile.id)
+    if (clip) void playClip(clip)
     return () => {
       window.clearTimeout(phaseTimer)
       window.clearTimeout(endTimer)
     }
-  }, [onSkip])
+  }, [onSkip, profile.id])
 
   // coin canvas
   useEffect(() => {

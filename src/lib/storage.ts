@@ -1,4 +1,5 @@
 import type { ProfileId } from '../types'
+import type { Parent } from './phrases'
 
 export interface Profile {
   name: ProfileId
@@ -103,4 +104,57 @@ export function getLastProfile(): ProfileId | null {
 export function setLastProfile(id: ProfileId | null): void {
   if (id) localStorage.setItem(KEY_LAST, id)
   else localStorage.removeItem(KEY_LAST)
+}
+
+// ---------- Parent voice clips ---------------------------------------------
+
+const KEY_VOICES = 'voices'
+
+export type VoiceKey = string
+
+export function voiceKey(
+  parent: Parent,
+  profileId: ProfileId,
+  index: number,
+): VoiceKey {
+  return `${parent}_${profileId}_${index}`
+}
+
+function isValidAudio(v: unknown): v is string {
+  return typeof v === 'string' && v.startsWith('data:audio/')
+}
+
+export function loadVoices(): Record<VoiceKey, string> {
+  try {
+    const raw = localStorage.getItem(KEY_VOICES)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    if (!parsed || typeof parsed !== 'object') return {}
+    const out: Record<string, string> = {}
+    for (const [k, v] of Object.entries(parsed)) {
+      if (isValidAudio(v)) out[k] = v
+    }
+    return out
+  } catch {
+    return {}
+  }
+}
+
+export function saveVoice(key: VoiceKey, audioBase64: string): void {
+  if (!isValidAudio(audioBase64)) return
+  const all = loadVoices()
+  all[key] = audioBase64
+  try {
+    localStorage.setItem(KEY_VOICES, JSON.stringify(all))
+  } catch (err) {
+    // Most likely QuotaExceeded; surface to caller via console for debugging.
+    console.warn('saveVoice: storage write failed', err)
+  }
+}
+
+export function deleteVoice(key: VoiceKey): void {
+  const all = loadVoices()
+  if (!(key in all)) return
+  delete all[key]
+  localStorage.setItem(KEY_VOICES, JSON.stringify(all))
 }

@@ -7,6 +7,7 @@ import type { ProfileId } from '../types'
 import { loadProfile, updateProfile } from '../lib/storage'
 import { CelebrationAtai } from '../components/CelebrationAtai'
 import { CelebrationEmily } from '../components/CelebrationEmily'
+import { pickStartClip, playClip } from '../lib/audio'
 
 type Props = {
   profileId: ProfileId
@@ -86,6 +87,12 @@ export function Game({ profileId, onExit }: Props) {
   }, [started, profileId, stored])
 
   const handleStart = async () => {
+    // Kick off the parent's "Поехали!" clip *inside* the user-gesture handler
+    // so iOS Safari doesn't reject playback. Falls back to silence if no
+    // recording exists for this profile.
+    const startClip = pickStartClip(profileId)
+    if (startClip) void playClip(startClip)
+
     await ensureOrientationPermission()
     try {
       const so = screen.orientation as ScreenOrientation & {

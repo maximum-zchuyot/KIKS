@@ -6,6 +6,7 @@ import type { Profiles } from '../lib/storage'
 
 type Props = {
   onSelect: (profile: ProfileId) => void
+  onOpenParentSettings: () => void
 }
 
 const order: ProfileId[] = ['atai', 'emily']
@@ -17,7 +18,7 @@ const cardGradient: Record<ProfileId, string> = {
 
 const RESET_HOLD_MS = 800
 
-export function ProfileSelect({ onSelect }: Props) {
+export function ProfileSelect({ onSelect, onOpenParentSettings }: Props) {
   const [profiles, setProfiles] = useState<Profiles>(() => loadProfiles())
   const [resetMode, setResetMode] = useState(false)
   const holdTimerRef = useRef<number | null>(null)
@@ -126,6 +127,17 @@ export function ProfileSelect({ onSelect }: Props) {
           )
         })}
       </div>
+
+      {!resetMode && (
+        <button
+          type="button"
+          onClick={onOpenParentSettings}
+          aria-label="Настройка родителя"
+          className="rounded-full bg-white/10 px-5 py-3 text-sm font-bold text-white/90 backdrop-blur ring-1 ring-white/20 active:scale-95"
+        >
+          🎤 Настройка родителя
+        </button>
+      )}
 
       {!resetMode && (
         <p className="absolute bottom-3 left-3 text-[11px] text-white/40">

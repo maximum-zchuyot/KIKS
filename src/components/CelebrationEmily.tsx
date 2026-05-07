@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { ProfileSettings } from '../types'
+import { pickCelebrationClip, playClip } from '../lib/audio'
 
 interface Props {
   profile: ProfileSettings
@@ -41,8 +42,10 @@ export function CelebrationEmily({
 
   useEffect(() => {
     const t = window.setTimeout(onSkip, DURATION_MS)
+    const clip = pickCelebrationClip(profile.id)
+    if (clip) void playClip(clip)
     return () => window.clearTimeout(t)
-  }, [onSkip])
+  }, [onSkip, profile.id])
 
   useEffect(() => {
     const canvas = canvasRef.current
