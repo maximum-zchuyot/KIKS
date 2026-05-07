@@ -43,13 +43,20 @@ export function CelebrationAtai({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const trampolineRef = useRef<HTMLDivElement>(null)
   const sourceRef = useRef<HTMLDivElement>(null)
+  // StrictMode double-invokes effects in dev; this ref guarantees the voice
+  // clip is picked + played at most once per real mount, so we don't
+  // simultaneously stack two recordings or burn through lastPlayedKey twice.
+  const audioFiredRef = useRef(false)
 
   // phase + auto-skip timers + parent voice clip
   useEffect(() => {
     const phaseTimer = window.setTimeout(() => setPhase('bouncing'), FEEDING_MS)
     const endTimer = window.setTimeout(onSkip, DURATION_MS)
-    const clip = pickCelebrationClip(profile.id)
-    if (clip) void playClip(clip)
+    if (!audioFiredRef.current) {
+      audioFiredRef.current = true
+      const clip = pickCelebrationClip(profile.id)
+      if (clip) void playClip(clip)
+    }
     return () => {
       window.clearTimeout(phaseTimer)
       window.clearTimeout(endTimer)

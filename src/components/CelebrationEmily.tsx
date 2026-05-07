@@ -39,11 +39,17 @@ export function CelebrationEmily({
   onSkip,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  // StrictMode-safe: only fire audio once per real mount — see CelebrationAtai
+  // for the rationale.
+  const audioFiredRef = useRef(false)
 
   useEffect(() => {
     const t = window.setTimeout(onSkip, DURATION_MS)
-    const clip = pickCelebrationClip(profile.id)
-    if (clip) void playClip(clip)
+    if (!audioFiredRef.current) {
+      audioFiredRef.current = true
+      const clip = pickCelebrationClip(profile.id)
+      if (clip) void playClip(clip)
+    }
     return () => window.clearTimeout(t)
   }, [onSkip, profile.id])
 

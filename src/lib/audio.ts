@@ -15,15 +15,43 @@ interface ClipRef {
  */
 let lastPlayedKey: string | null = null
 
-/** Play a base64 audio data URL. Resolves on end / error / autoplay-block. */
+/**
+ * Singleton handle on the currently-playing clip. We only ever want one voice
+ * line audible at a time — React.StrictMode (dev) double-invokes effects, and
+ * a tap-skip into a fresh celebration could otherwise stack audio elements.
+ */
+let currentAudio: HTMLAudioElement | null = null
+
+function stopCurrentAudio(): void {
+  if (!currentAudio) return
+  const a = currentAudio
+  currentAudio = null
+  try {
+    a.onended = null
+    a.onerror = null
+    a.pause()
+    a.src = ''
+  } catch {
+    // ignore — element may already be detached
+  }
+}
+
+/** Play a base64 audio data URL. Replaces any clip already playing.
+ *  Resolves on end / error / autoplay-block. */
 export function playClip(dataUrl: string): Promise<void> {
   return new Promise((resolve) => {
+    stopCurrentAudio()
     try {
       const audio = new Audio(dataUrl)
+      currentAudio = audio
       audio.preload = 'auto'
-      audio.onended = () => resolve()
-      audio.onerror = () => resolve()
-      audio.play().catch(() => resolve())
+      const finish = () => {
+        if (currentAudio === audio) currentAudio = null
+        resolve()
+      }
+      audio.onended = finish
+      audio.onerror = finish
+      audio.play().catch(finish)
     } catch {
       resolve()
     }
