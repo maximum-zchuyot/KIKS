@@ -14,8 +14,6 @@ export type Profiles = Record<ProfileId, Profile>
 const KEY_PROFILES = 'profiles'
 const KEY_LAST = 'lastProfile'
 
-const ALL_IDS: ProfileId[] = ['atai', 'emily']
-
 function emptyProfile(name: ProfileId): Profile {
   return {
     name,
@@ -30,17 +28,39 @@ function emptyProfiles(): Profiles {
   return { atai: emptyProfile('atai'), emily: emptyProfile('emily') }
 }
 
+function isValidPhoto(v: unknown): v is string {
+  return typeof v === 'string' && v.startsWith('data:image/')
+}
+
+function sanitizeProfile(name: ProfileId, raw: unknown): Profile {
+  const base = emptyProfile(name)
+  if (!raw || typeof raw !== 'object') return base
+  const r = raw as Record<string, unknown>
+  return {
+    name,
+    photoBase64: isValidPhoto(r.photoBase64) ? r.photoBase64 : null,
+    totalScore: typeof r.totalScore === 'number' && Number.isFinite(r.totalScore)
+      ? r.totalScore
+      : 0,
+    highestLevelReached:
+      typeof r.highestLevelReached === 'number' && Number.isFinite(r.highestLevelReached)
+        ? r.highestLevelReached
+        : 0,
+    lastPlayedAt: typeof r.lastPlayedAt === 'number' && Number.isFinite(r.lastPlayedAt)
+      ? r.lastPlayedAt
+      : 0,
+  }
+}
+
 export function loadProfiles(): Profiles {
   try {
     const raw = localStorage.getItem(KEY_PROFILES)
     if (!raw) return emptyProfiles()
-    const parsed = JSON.parse(raw) as Partial<Profiles>
-    const result = emptyProfiles()
-    for (const id of ALL_IDS) {
-      const p = parsed[id]
-      if (p && typeof p === 'object') result[id] = { ...result[id], ...p, name: id }
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    return {
+      atai: sanitizeProfile('atai', parsed.atai),
+      emily: sanitizeProfile('emily', parsed.emily),
     }
-    return result
   } catch {
     return emptyProfiles()
   }

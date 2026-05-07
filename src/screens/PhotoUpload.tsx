@@ -245,7 +245,12 @@ export function PhotoUpload({ profileId, onDone, onBack }: Props) {
       )}
 
       {stage === 'detecting' && (
-        <p className="text-xl font-semibold">Ищем лицо…</p>
+        <p className="text-xl font-semibold" aria-live="polite">
+          Ищем лицо
+          <span className="kiks-loading-dot">.</span>
+          <span className="kiks-loading-dot">.</span>
+          <span className="kiks-loading-dot">.</span>
+        </p>
       )}
 
       {stage === 'manual' && (

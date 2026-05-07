@@ -5,14 +5,13 @@ import { ensureOrientationPermission } from '../game/controls'
 import { PROFILES } from '../types'
 import type { ProfileId } from '../types'
 import { loadProfile, updateProfile } from '../lib/storage'
-import { Celebration } from '../components/Celebration'
+import { CelebrationAtai } from '../components/CelebrationAtai'
+import { CelebrationEmily } from '../components/CelebrationEmily'
 
 type Props = {
   profileId: ProfileId
   onExit: () => void
 }
-
-const TRANSITION_MS = 3000
 
 export function Game({ profileId, onExit }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -28,19 +27,15 @@ export function Game({ profileId, onExit }: Props) {
   const stored = useMemo(() => loadProfile(profileId), [profileId])
 
   const liveScoreRef = useRef(0)
-  const pendingTransitionRef = useRef<{
-    nextIndex: number
-    timer: number | null
-  } | null>(null)
+  const pendingNextIndexRef = useRef<number | null>(null)
 
   const applyPendingTransition = useCallback(() => {
-    const pending = pendingTransitionRef.current
-    if (!pending) return
-    if (pending.timer !== null) window.clearTimeout(pending.timer)
-    pendingTransitionRef.current = null
+    const next = pendingNextIndexRef.current
+    if (next === null) return
+    pendingNextIndexRef.current = null
     const engine = engineRef.current
-    if (engine) engine.loadLevel(pending.nextIndex)
-    setLevelIndex(pending.nextIndex)
+    if (engine) engine.loadLevel(next)
+    setLevelIndex(next)
     setCollected(0)
     setTransitionToId(null)
   }, [])
@@ -68,12 +63,11 @@ export function Game({ profileId, onExit }: Props) {
         if (!hasNext) return
         const nextIndex = engine.getCurrentLevelIndex() + 1
         const nextId = LEVELS[nextIndex]?.id ?? null
+        if (nextId === null) return
+        pendingNextIndexRef.current = nextIndex
         setTransitionToId(nextId)
-        const timer = window.setTimeout(
-          () => applyPendingTransition(),
-          TRANSITION_MS,
-        )
-        pendingTransitionRef.current = { nextIndex, timer }
+        // The Celebration components own their own duration + auto-skip;
+        // they call onSkip when done (or on tap), which advances the engine.
       },
     })
     engineRef.current = engine
@@ -85,15 +79,11 @@ export function Game({ profileId, onExit }: Props) {
     engine.start()
     return () => {
       window.clearInterval(debugTimer)
-      const pending = pendingTransitionRef.current
-      if (pending?.timer !== null && pending !== null) {
-        window.clearTimeout(pending.timer)
-      }
-      pendingTransitionRef.current = null
+      pendingNextIndexRef.current = null
       engine.stop()
       engineRef.current = null
     }
-  }, [started, profileId, stored, applyPendingTransition])
+  }, [started, profileId, stored])
 
   const handleStart = async () => {
     await ensureOrientationPermission()
@@ -124,12 +114,16 @@ export function Game({ profileId, onExit }: Props) {
         <button
           type="button"
           onClick={onExit}
+          aria-label="Выйти из игры"
           className="pointer-events-auto rounded-full bg-black/40 px-4 py-2 text-sm font-semibold backdrop-blur active:scale-95"
         >
           ← Назад
         </button>
         <div className="flex flex-col items-center gap-1">
-          <div className="rounded-full bg-black/40 px-4 py-1 text-xs font-bold uppercase tracking-wider backdrop-blur">
+          <div
+            key={`level-${currentLevel.id}`}
+            className="kiks-pop rounded-full bg-black/40 px-4 py-1 text-xs font-bold uppercase tracking-wider backdrop-blur"
+          >
             Уровень {currentLevel.id}
           </div>
           <div className="rounded-full bg-black/40 px-5 py-2 text-base font-extrabold tabular-nums backdrop-blur sm:text-lg">
@@ -140,7 +134,7 @@ export function Game({ profileId, onExit }: Props) {
         <div className="w-16" aria-hidden="true" />
       </div>
 
-      {started && (
+      {started && transitionToId === null && (
         <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center text-white">
           <div
             className={`rounded-full px-3 py-1 text-xs font-mono tabular-nums backdrop-blur ${
@@ -178,15 +172,22 @@ export function Game({ profileId, onExit }: Props) {
         </div>
       )}
 
-      {transitionToId !== null && (
-        <Celebration
-          profile={profile}
-          photoBase64={stored.photoBase64}
-          nextLevelId={transitionToId}
-          onSkip={applyPendingTransition}
-          durationMs={TRANSITION_MS}
-        />
-      )}
+      {transitionToId !== null &&
+        (profileId === 'atai' ? (
+          <CelebrationAtai
+            profile={profile}
+            photoBase64={stored.photoBase64}
+            nextLevelId={transitionToId}
+            onSkip={applyPendingTransition}
+          />
+        ) : (
+          <CelebrationEmily
+            profile={profile}
+            photoBase64={stored.photoBase64}
+            nextLevelId={transitionToId}
+            onSkip={applyPendingTransition}
+          />
+        ))}
     </div>
   )
 }
