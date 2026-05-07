@@ -20,6 +20,16 @@ export interface ProfileSettings {
   tiltDeadzone: number
   /** touch step in css px (Section 5.3) */
   moveStep: number
+  /**
+   * Multiplier applied to every level's fallSpeed for this profile (default 1).
+   * Lower values give younger players more time to react.
+   */
+  fallSpeedMultiplier?: number
+  /**
+   * When true, tapping a token on the canvas collects it directly — a helper
+   * for kids too young to maneuver the avatar by tilt or by left/right taps.
+   */
+  tapToCollect?: boolean
 }
 
 export const PROFILES: Record<ProfileId, ProfileSettings> = {
@@ -48,5 +58,9 @@ export const PROFILES: Record<ProfileId, ProfileSettings> = {
     sensitivity: 24,
     tiltDeadzone: 5,
     moveStep: 80,
+    // Эмили (3 года) — 30 % slower fall + can tap a heart to collect it
+    // directly without having to chase it with the avatar.
+    fallSpeedMultiplier: 0.7,
+    tapToCollect: true,
   },
 }

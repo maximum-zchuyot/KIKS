@@ -79,8 +79,20 @@ export class GameEngine {
       accent: this.profile.accent,
       photoBase64: cfg.photoBase64,
     })
-    this.controls = createControls(cfg.canvas, (side) => {
-      const step = side === 'left' ? -this.profile.moveStep : this.profile.moveStep
+    this.controls = createControls(cfg.canvas, (tap) => {
+      // Younger profiles can grab a token by tapping it directly (TZ helper):
+      // hit-test first, fall through to the standard left/right move tap when
+      // nothing is under the finger.
+      if (this.profile.tapToCollect && !this.completed) {
+        const hit = this.findTokenAt(tap.x, tap.y, 40)
+        if (hit) {
+          this.tokens = this.tokens.filter((t) => t !== hit)
+          this.collect(hit, performance.now())
+          return
+        }
+      }
+      const step =
+        tap.side === 'left' ? -this.profile.moveStep : this.profile.moveStep
       this.player.targetX += step
     })
 
@@ -234,15 +246,32 @@ export class GameEngine {
     const margin = 40
     const x = margin + Math.random() * Math.max(0, this.width - margin * 2)
     const type = pickWeighted(level.tokenTypes, level.weights)
+    const speedMul = this.profile.fallSpeedMultiplier ?? 1
     this.tokens.push(
       new Token({
         x,
         y: -32,
         type,
-        fallSpeed: level.fallSpeed,
+        fallSpeed: level.fallSpeed * speedMul,
         sprite: this.theme.tokenSprite[type],
       }),
     )
+  }
+
+  private findTokenAt(x: number, y: number, slop: number): Token | undefined {
+    let bestDistSq = Infinity
+    let best: Token | undefined
+    for (const t of this.tokens) {
+      const dx = t.x - x
+      const dy = t.y - y
+      const d2 = dx * dx + dy * dy
+      const r = t.radius + slop
+      if (d2 <= r * r && d2 < bestDistSq) {
+        bestDistSq = d2
+        best = t
+      }
+    }
+    return best
   }
 
   private spawnParticles(x: number, y: number, color: string): void {
