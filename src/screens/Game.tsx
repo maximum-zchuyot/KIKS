@@ -7,6 +7,7 @@ import type { ProfileId } from '../types'
 import { loadProfile, updateProfile } from '../lib/storage'
 import { CelebrationAtai } from '../components/CelebrationAtai'
 import { CelebrationEmily } from '../components/CelebrationEmily'
+import { GameWon } from '../components/GameWon'
 import { pickStartClip, playClip } from '../lib/audio'
 
 type Props = {
@@ -22,6 +23,7 @@ export function Game({ profileId, onExit }: Props) {
   const [collected, setCollected] = useState(0)
   const [levelIndex, setLevelIndex] = useState(0)
   const [transitionToId, setTransitionToId] = useState<number | null>(null)
+  const [gameWon, setGameWon] = useState(false)
   const [debug, setDebug] = useState({ gamma: 0, hasGyro: false })
 
   const profile = PROFILES[profileId]
@@ -69,6 +71,18 @@ export function Game({ profileId, onExit }: Props) {
         setTransitionToId(nextId)
         // The Celebration components own their own duration + auto-skip;
         // they call onSkip when done (or on tap), which advances the engine.
+      },
+      onGameWon: (finalScore) => {
+        // Persist the run, then surface the rocket-launch finale. The engine
+        // already set `completed = true` so spawning has stopped; the engine
+        // is also stopped from inside this callback below for good measure.
+        updateProfile(profileId, {
+          totalScore: stored.totalScore + finalScore,
+          highestLevelReached: 3,
+          lastPlayedAt: Date.now(),
+        })
+        engineRef.current?.stop()
+        setGameWon(true)
       },
     })
     engineRef.current = engine
@@ -180,6 +194,7 @@ export function Game({ profileId, onExit }: Props) {
       )}
 
       {transitionToId !== null &&
+        !gameWon &&
         (profileId === 'atai' ? (
           <CelebrationAtai
             profile={profile}
@@ -195,6 +210,15 @@ export function Game({ profileId, onExit }: Props) {
             onSkip={applyPendingTransition}
           />
         ))}
+
+      {gameWon && (
+        <GameWon
+          profile={profile}
+          photoBase64={stored.photoBase64}
+          totalScore={score}
+          onDone={onExit}
+        />
+      )}
     </div>
   )
 }

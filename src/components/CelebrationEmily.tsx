@@ -9,8 +9,11 @@ interface Props {
   onSkip: () => void
 }
 
-const DURATION_MS = 5000
 const FEEDING_MS = 1800
+const BOUNCING_MS = 2100 // ≈ 3 jumps × 0.7 s
+const LAUNCH_MS = 5000
+const DURATION_MS = FEEDING_MS + BOUNCING_MS + LAUNCH_MS // 8900
+
 const HEART_COUNT = 14
 const HEART_FLIGHT_MS = 1100
 
@@ -25,13 +28,18 @@ interface Heart {
   spin: number
 }
 
+type Phase = 'feeding' | 'bouncing' | 'launching'
+
 /**
- * Эмили's level-transition skit (mirrors CelebrationAtai 1-to-1):
+ * Эмили's level-transition skit:
  *   1. small Эмили avatar lives at the bottom
  *   2. hearts arc out of her toward an inert trampoline above
- *   3. once enough hearts land, the trampoline "powers on" and 3 girls hop on it
+ *   3. trampoline "powers on" and 3 girls hop on it (~3 jumps)
+ *   4. they jump *really* hard and fly off into the sky — stars, sun, moon —
+ *      where a big Эмили portrait greets them at the top
  *
- * Auto-advances after 5 s, tap anywhere skips early.
+ * Auto-advances after ~9 s. Touch is disabled during the celebration so the
+ * kid can't accidentally skip the show.
  */
 export function CelebrationEmily({
   profile,
@@ -39,18 +47,23 @@ export function CelebrationEmily({
   nextLevelId,
   onSkip,
 }: Props) {
-  const [phase, setPhase] = useState<'feeding' | 'bouncing'>('feeding')
+  const [phase, setPhase] = useState<Phase>('feeding')
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const trampolineRef = useRef<HTMLDivElement>(null)
   const sourceRef = useRef<HTMLDivElement>(null)
-  // StrictMode double-invokes effects in dev; this ref guarantees the voice
-  // clip is picked + played at most once per real mount, so we don't
-  // simultaneously stack two recordings or burn through lastPlayedKey twice.
+  // StrictMode-safe: only fire audio + advance lastPlayedKey once per real mount.
   const audioFiredRef = useRef(false)
 
   // phase + auto-skip timers + parent voice clip
   useEffect(() => {
-    const phaseTimer = window.setTimeout(() => setPhase('bouncing'), FEEDING_MS)
+    const bouncePhaseTimer = window.setTimeout(
+      () => setPhase('bouncing'),
+      FEEDING_MS,
+    )
+    const launchPhaseTimer = window.setTimeout(
+      () => setPhase('launching'),
+      FEEDING_MS + BOUNCING_MS,
+    )
     const endTimer = window.setTimeout(onSkip, DURATION_MS)
     if (!audioFiredRef.current) {
       audioFiredRef.current = true
@@ -58,7 +71,8 @@ export function CelebrationEmily({
       if (clip) void playClip(clip)
     }
     return () => {
-      window.clearTimeout(phaseTimer)
+      window.clearTimeout(bouncePhaseTimer)
+      window.clearTimeout(launchPhaseTimer)
       window.clearTimeout(endTimer)
     }
   }, [onSkip, profile.id])
@@ -93,7 +107,6 @@ export function CelebrationEmily({
       const jitter = (Math.random() - 0.5) * trampolineRect.width * 0.6
       const ex = targetX + jitter
       const ey = targetY + (Math.random() - 0.5) * 12
-      // control point pulls the arc up over the midpoint
       const cx = (startX + ex) / 2 + (Math.random() - 0.5) * 80
       const cy = Math.min(startY, ey) - 220 - Math.random() * 80
       return {
@@ -143,7 +156,6 @@ export function CelebrationEmily({
       }
       ctx.globalAlpha = 1
 
-      // stop once everyone has landed and we've passed the feeding window
       if (liveHearts > 0 || now - t0 < FEEDING_MS) {
         raf = window.requestAnimationFrame(tick)
       }
@@ -157,16 +169,57 @@ export function CelebrationEmily({
   }, [])
 
   const bouncing = phase === 'bouncing'
+  const launching = phase === 'launching'
+
+  const kidClass = (n: 1 | 2 | 3) => {
+    if (launching) return `kiks-launch-${n}`
+    if (bouncing) return `kiks-jump-${n}`
+    return ''
+  }
 
   return (
     <div
-      onPointerDown={onSkip}
       role="presentation"
       className="absolute inset-0 z-30 flex flex-col items-center overflow-hidden text-center text-white"
       style={{
         background: `linear-gradient(180deg, ${profile.bgFrom} 0%, ${profile.bgTo} 100%)`,
       }}
     >
+      {/* Sky props that appear during the launch — stars, sun, moon */}
+      {launching && (
+        <div className="pointer-events-none absolute inset-0 z-10">
+          <span className="kiks-twinkle absolute text-4xl" style={{ top: '8%', left: '12%' }} aria-hidden="true">⭐</span>
+          <span className="kiks-twinkle absolute text-3xl" style={{ top: '14%', left: '72%', animationDelay: '0.3s' }} aria-hidden="true">🌟</span>
+          <span className="kiks-twinkle absolute text-3xl" style={{ top: '22%', left: '32%', animationDelay: '0.6s' }} aria-hidden="true">✨</span>
+          <span className="kiks-twinkle absolute text-3xl" style={{ top: '28%', left: '85%', animationDelay: '0.9s' }} aria-hidden="true">⭐</span>
+          <span className="kiks-twinkle absolute text-2xl" style={{ top: '5%', right: '32%', animationDelay: '1.2s' }} aria-hidden="true">🌟</span>
+          <span className="kiks-spin absolute text-6xl" style={{ top: '6%', right: '6%' }} aria-hidden="true">☀️</span>
+          <span className="kiks-twinkle absolute text-5xl" style={{ top: '28%', left: '4%', animationDelay: '0.4s' }} aria-hidden="true">🌙</span>
+        </div>
+      )}
+
+      {/* Big Эмили portrait that greets the launched girls at the top */}
+      {launching && (
+        <div className="kiks-greet absolute left-1/2 top-[12%] z-[15] flex flex-col items-center">
+          <div className="grid h-40 w-40 place-items-center overflow-hidden rounded-full bg-white/20 ring-4 ring-white/90 shadow-2xl shadow-black/50 sm:h-48 sm:w-48">
+            {photoBase64 ? (
+              <img
+                src={photoBase64}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span aria-hidden="true" className="text-7xl">
+                {profile.emoji}
+              </span>
+            )}
+          </div>
+          <p className="mt-2 rounded-full bg-black/35 px-3 py-1 text-sm font-extrabold drop-shadow">
+            Эмили ждёт!
+          </p>
+        </div>
+      )}
+
       <canvas
         ref={canvasRef}
         className="pointer-events-none absolute inset-0 z-20"
@@ -181,20 +234,20 @@ export function CelebrationEmily({
         </p>
       </div>
 
-      {/* trampoline scene — girls on top, mat below */}
+      {/* Trampoline scene — girls on top, mat below.
+          During the launch the mat dims out (the show has moved). */}
       <div className="relative z-10 mt-10 flex w-full max-w-md flex-col items-center">
         <div className="flex h-24 items-end justify-center gap-3 text-5xl">
-          <span className={bouncing ? 'kiks-jump-1' : ''} aria-hidden="true">
-            👧
-          </span>
-          <span className={bouncing ? 'kiks-jump-2' : ''} aria-hidden="true">
-            🧒
-          </span>
-          <span className={bouncing ? 'kiks-jump-3' : ''} aria-hidden="true">
-            👧
-          </span>
+          <span className={kidClass(1)} aria-hidden="true">👧</span>
+          <span className={kidClass(2)} aria-hidden="true">🧒</span>
+          <span className={kidClass(3)} aria-hidden="true">👧</span>
         </div>
-        <div ref={trampolineRef} className="relative mt-1 h-24 w-72 sm:w-80">
+        <div
+          ref={trampolineRef}
+          className={`relative mt-1 h-24 w-72 transition-opacity duration-500 sm:w-80 ${
+            launching ? 'opacity-30' : ''
+          }`}
+        >
           <svg
             viewBox="0 0 320 110"
             className={`h-full w-full transition-[filter] duration-300 ${
@@ -202,10 +255,8 @@ export function CelebrationEmily({
             }`}
             aria-hidden="true"
           >
-            {/* legs */}
             <rect x="36" y="62" width="10" height="42" rx="3" fill="#1f2937" />
             <rect x="274" y="62" width="10" height="42" rx="3" fill="#1f2937" />
-            {/* mat */}
             <g
               className={bouncing ? 'kiks-tramp' : ''}
               style={{ transformOrigin: '160px 60px' }}
@@ -227,7 +278,6 @@ export function CelebrationEmily({
                 fill="rgba(255,255,255,0.18)"
               />
             </g>
-            {/* springs */}
             {Array.from({ length: 9 }).map((_, i) => {
               const x = 50 + i * 28
               return (
@@ -243,7 +293,6 @@ export function CelebrationEmily({
                 />
               )
             })}
-            {/* glow when active */}
             {bouncing && (
               <ellipse
                 cx="160"
@@ -260,8 +309,12 @@ export function CelebrationEmily({
         </div>
       </div>
 
-      {/* small Эмили avatar — the source of the hearts */}
-      <div className="relative z-10 mt-auto mb-8 flex flex-col items-center gap-2">
+      {/* Small Эмили avatar — the source of the hearts (also dims during launch) */}
+      <div
+        className={`relative z-10 mt-auto mb-8 flex flex-col items-center gap-2 transition-opacity duration-500 ${
+          launching ? 'opacity-0' : ''
+        }`}
+      >
         <div
           ref={sourceRef}
           className="kiks-hover grid h-24 w-24 place-items-center overflow-hidden rounded-full ring-4 ring-white/80 shadow-xl shadow-black/40"

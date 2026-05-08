@@ -29,10 +29,17 @@ export interface GameEngineConfig {
   startLevelIndex: number
   onScore: (delta: number, totalCollectedThisLevel: number, totalScore: number) => void
   onLevelComplete: (levelId: number, hasNext: boolean) => void
+  /** Fires once after the player has spent {@link LEVEL3_WIN_DURATION_MS}
+   *  on the endless level 3 — that's the win condition. */
+  onGameWon: (totalScore: number) => void
 }
 
 const PARTICLE_LIFE = 0.55
 const MAGNET_DURATION_MS = 3000
+
+/** Level 3 (endless) auto-wins after this many ms — TZ §6 + the 3-минуты ask. */
+const LEVEL3_WIN_DURATION_MS = 180_000
+const LEVEL3_INDEX = 2
 
 export class GameEngine {
   private cfg: GameEngineConfig
@@ -56,6 +63,9 @@ export class GameEngine {
   private score = 0
   private completed = false
   private magnetUntilTs = 0
+  /** Wall-time spent on level 3, in ms. Capped by LEVEL3_WIN_DURATION_MS. */
+  private level3ElapsedMs = 0
+  private gameWonFired = false
 
   private width = 0
   private height = 0
@@ -125,6 +135,7 @@ export class GameEngine {
     this.particles = []
     this.completed = false
     this.magnetUntilTs = 0
+    if (index === LEVEL3_INDEX) this.level3ElapsedMs = 0
   }
 
   getCurrentLevelIndex(): number {
@@ -175,6 +186,17 @@ export class GameEngine {
     this.background.update(dt)
 
     const level = this.currentLevel
+
+    // Level 3 win timer — ticks only while we're actually on level 3 and the
+    // win hasn't already fired. Stops spawning so the screen drains naturally.
+    if (this.levelIndex === LEVEL3_INDEX && !this.gameWonFired) {
+      this.level3ElapsedMs += dt * 1000
+      if (this.level3ElapsedMs >= LEVEL3_WIN_DURATION_MS) {
+        this.gameWonFired = true
+        this.completed = true
+        this.cfg.onGameWon(this.score)
+      }
+    }
 
     if (!this.completed) {
       this.spawnAcc += dt * 1000

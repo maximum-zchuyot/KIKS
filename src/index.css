@@ -145,6 +145,63 @@ html {
   animation-delay: 0.32s;
 }
 
+/* Эмили celebration — launching phase: 3 girls fly up off-screen with a slight
+   horizontal drift + spin. ease-in feels like a rocket pickup. */
+@keyframes kiks-launch-1 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-32px, -120vh) rotate(-540deg); }
+}
+@keyframes kiks-launch-2 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(0, -130vh) rotate(720deg); }
+}
+@keyframes kiks-launch-3 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(32px, -120vh) rotate(540deg); }
+}
+.kiks-launch-1 { animation: kiks-launch-1 5s cubic-bezier(0.35, 0, 0.7, 1) forwards; }
+.kiks-launch-2 { animation: kiks-launch-2 5s cubic-bezier(0.35, 0, 0.7, 1) forwards; }
+.kiks-launch-3 { animation: kiks-launch-3 5s cubic-bezier(0.35, 0, 0.7, 1) forwards; }
+
+/* Twinkling props (stars / moon) on the launch background. */
+@keyframes kiks-twinkle {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+.kiks-twinkle {
+  animation: kiks-twinkle 1.6s ease-in-out infinite;
+}
+
+/* Slowly rotating sun. */
+@keyframes kiks-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.kiks-spin {
+  animation: kiks-spin 8s linear infinite;
+}
+
+/* Big Эмили portrait fading in from above to "meet" the launched kids. */
+@keyframes kiks-greet {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(0.6); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+.kiks-greet {
+  animation: kiks-greet 1.6s cubic-bezier(0.2, 1.2, 0.4, 1) 1.4s both;
+  /* the `1.4s` delay lets the kids start flying before she pops in */
+  transform: translateX(-50%);
+}
+
+/* GameWon — rocket lifting straight up off-screen over 7 s. */
+@keyframes kiks-rocket-up {
+  0%   { transform: translateX(-50%) translateY(0); }
+  10%  { transform: translateX(-50%) translateY(-2vh); }
+  100% { transform: translateX(-50%) translateY(-130vh); }
+}
+.kiks-rocket-up {
+  animation: kiks-rocket-up 7s cubic-bezier(0.4, 0, 0.6, 1) 0.6s forwards;
+}
+
 /* Force-portrait warning. Shown only when a small device is in landscape. */
 .kiks-rotate-warning {
   display: none;

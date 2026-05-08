@@ -160,7 +160,6 @@ export function CelebrationAtai({
 
   return (
     <div
-      onPointerDown={onSkip}
       role="presentation"
       className="absolute inset-0 z-30 flex flex-col items-center overflow-hidden text-center text-white"
       style={{
