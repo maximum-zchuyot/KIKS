@@ -1,0 +1,1030 @@
+<title>ביקורת פרסום מקסימום</title>
+<style>
+  :root {
+    --bg: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #131311;
+    --ink2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --hair: rgba(11,11,11,.10);
+    --accent: #2a78d6;
+    --accent-deep: #1c5cab;
+    --accent-wash: rgba(42,120,214,.08);
+    --c-google: #2a78d6;
+    --c-taboola: #eb6834;
+    --c-yandex: #1baf7a;
+    --c-fb: #eda100;
+    --good: #0ca30c;
+    --good-text: #006300;
+    --warn: #fab219;
+    --serious: #ec835a;
+    --crit: #d03b3b;
+    --crit-text: #b02f2f;
+    --code-bg: #f1f0ec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d0d0d;
+      --surface: #1a1a19;
+      --ink: #f5f5f2;
+      --ink2: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --hair: rgba(255,255,255,.10);
+      --accent: #3987e5;
+      --accent-deep: #6da7ec;
+      --accent-wash: rgba(57,135,229,.12);
+      --c-google: #3987e5;
+      --c-taboola: #d95926;
+      --c-yandex: #199e70;
+      --c-fb: #c98500;
+      --good-text: #0ca30c;
+      --crit-text: #e66767;
+      --code-bg: #232322;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #f5f5f2;
+    --ink2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --hair: rgba(255,255,255,.10);
+    --accent: #3987e5;
+    --accent-deep: #6da7ec;
+    --accent-wash: rgba(57,135,229,.12);
+    --c-google: #3987e5;
+    --c-taboola: #d95926;
+    --c-yandex: #199e70;
+    --c-fb: #c98500;
+    --good-text: #0ca30c;
+    --crit-text: #e66767;
+    --code-bg: #232322;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, "Noto Sans Hebrew", "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    line-height: 1.55;
+    font-size: 15px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px 80px; direction: rtl; }
+  a { color: var(--accent-deep); }
+
+  /* ---------- masthead ---------- */
+  .masthead { padding: 44px 0 10px; border-bottom: 2px solid var(--ink); }
+  .masthead .kicker { font-size: 12px; letter-spacing: .14em; color: var(--ink2); text-transform: uppercase; margin: 0 0 6px; }
+  .masthead h1 { font-size: clamp(26px, 4.5vw, 40px); line-height: 1.15; margin: 0 0 10px; font-weight: 750; text-wrap: balance; }
+  .masthead .sub { color: var(--ink2); max-width: 62ch; margin: 0 0 18px; }
+  .periods { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--muted); padding-bottom: 14px; }
+  .periods b { color: var(--ink2); font-weight: 600; }
+
+  nav.toc { position: sticky; top: 0; z-index: 30; background: var(--bg); border-bottom: 1px solid var(--grid); display: flex; gap: 4px; overflow-x: auto; padding: 8px 0; margin-bottom: 8px; }
+  nav.toc a { text-decoration: none; color: var(--ink2); font-size: 13px; padding: 5px 11px; border-radius: 999px; white-space: nowrap; border: 1px solid transparent; }
+  nav.toc a:hover, nav.toc a:focus-visible { background: var(--accent-wash); color: var(--accent-deep); outline: none; }
+
+  /* ---------- verdict ---------- */
+  .verdict { background: var(--surface); border: 1px solid var(--grid); border-right: 4px solid var(--accent); border-radius: 10px; padding: 18px 20px; margin: 24px 0; }
+  .verdict h2 { margin: 0 0 8px; font-size: 17px; }
+  .verdict p { margin: 6px 0; max-width: 90ch; }
+
+  h2.sec { font-size: 22px; margin: 46px 0 6px; padding-top: 10px; font-weight: 720; }
+  h2.sec .swatch { display: inline-block; width: 13px; height: 13px; border-radius: 3px; margin-inline-start: 2px; margin-inline-end: 8px; vertical-align: baseline; transform: translateY(1px); }
+  p.secsub { color: var(--ink2); margin: 0 0 18px; max-width: 84ch; }
+
+  /* ---------- KPI tiles ---------- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0 8px; }
+  .kpi { background: var(--surface); border: 1px solid var(--grid); border-radius: 10px; padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .kpi .name { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 14px; }
+  .kpi .name .dot { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
+  .kpi .big { font-size: 24px; font-weight: 720; margin-top: 4px; }
+  .kpi .big small { font-size: 13px; font-weight: 500; color: var(--muted); }
+  .kpi .row { font-size: 12.5px; color: var(--ink2); display: flex; justify-content: space-between; gap: 8px; font-variant-numeric: tabular-nums; }
+  .kpi .row .v { color: var(--ink); font-weight: 600; }
+  .up { color: var(--good-text); font-weight: 650; }
+  .down { color: var(--crit-text); font-weight: 650; }
+  .flat { color: var(--muted); font-weight: 600; }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 650; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--hair); white-space: nowrap; }
+  .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .pill.good { color: var(--good-text); background: rgba(12,163,12,.10); }
+  .pill.warn { color: var(--ink); background: rgba(250,178,25,.18); }
+  .pill.warn::before { background: var(--warn); }
+  .pill.crit { color: var(--crit-text); background: rgba(208,59,59,.12); }
+  .pill.off  { color: var(--muted); background: transparent; }
+
+  /* ---------- timeline ---------- */
+  .timeline { border-inline-start: 2px solid var(--grid); margin: 18px 6px 8px; padding: 2px 22px 2px 0; display: flex; flex-direction: column; gap: 14px; }
+  .tl { position: relative; }
+  .tl::before { content: ""; position: absolute; inset-inline-start: -29px; top: 7px; width: 11px; height: 11px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+  .tl.stop::before { background: var(--crit); }
+  .tl .d { font-weight: 720; font-variant-numeric: tabular-nums; }
+  .tl p { margin: 2px 0 0; color: var(--ink2); max-width: 88ch; }
+
+  /* ---------- chart card ---------- */
+  .card { background: var(--surface); border: 1px solid var(--grid); border-radius: 10px; padding: 18px 18px 10px; margin: 18px 0; }
+  .card h3 { margin: 0 0 2px; font-size: 15.5px; }
+  .card .note { color: var(--muted); font-size: 12.5px; margin: 0 0 10px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink2); margin: 4px 0 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+  .chartbox { direction: ltr; position: relative; }
+  .chartbox svg { display: block; width: 100%; height: auto; }
+  .tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--grid); box-shadow: 0 4px 14px rgba(0,0,0,.12); border-radius: 8px; padding: 8px 11px; font-size: 12px; direction: rtl; display: none; min-width: 150px; z-index: 5; }
+  .tip .t { font-weight: 700; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+  .tip .r { display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
+  .tip .r i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-inline-end: 5px; }
+
+  /* ---------- platform section ---------- */
+  section.platform { margin-top: 8px; }
+  .phead { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 12px; }
+  .statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
+  .stat { background: var(--surface); border: 1px solid var(--grid); border-radius: 8px; padding: 10px 12px; }
+  .stat .l { font-size: 12px; color: var(--muted); }
+  .stat .v { font-size: 19px; font-weight: 720; font-variant-numeric: tabular-nums; }
+  .stat .c { font-size: 12px; font-variant-numeric: tabular-nums; }
+
+  .tablewrap { overflow-x: auto; border: 1px solid var(--grid); border-radius: 8px; background: var(--surface); margin: 12px 0; }
+  table.data { border-collapse: collapse; width: 100%; min-width: 680px; font-size: 13px; }
+  table.data th { text-align: right; font-size: 11.5px; letter-spacing: .04em; color: var(--muted); font-weight: 650; padding: 9px 12px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  table.data td { padding: 8px 12px; border-bottom: 1px solid var(--grid); vertical-align: top; font-variant-numeric: tabular-nums; }
+  table.data tr:last-child td { border-bottom: none; }
+  table.data td.num, table.data th.num { text-align: left; direction: ltr; white-space: nowrap; }
+  table.data td.name { font-weight: 600; min-width: 150px; }
+  table.data .sub { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); }
+  tr.hl-good td { background: rgba(12,163,12,.06); }
+  tr.hl-bad td { background: rgba(208,59,59,.06); }
+
+  .cols2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 14px 0; }
+  .panel { background: var(--surface); border: 1px solid var(--grid); border-radius: 10px; padding: 14px 16px; }
+  .panel h4 { margin: 0 0 8px; font-size: 14px; display: flex; align-items: center; gap: 7px; }
+  .panel ul { margin: 0; padding-inline-start: 18px; display: flex; flex-direction: column; gap: 7px; }
+  .panel li { color: var(--ink2); }
+  .panel li b, .panel li strong { color: var(--ink); }
+  .mark-good, .mark-bad { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+  .mark-good { background: var(--good); }
+  .mark-bad { background: var(--crit); }
+
+  details.fold { border: 1px solid var(--grid); border-radius: 8px; background: var(--surface); margin: 10px 0; }
+  details.fold > summary { cursor: pointer; padding: 11px 14px; font-weight: 650; font-size: 13.5px; list-style: none; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  details.fold > summary::before { content: "◀"; font-size: 10px; color: var(--muted); transition: transform .15s; }
+  details.fold[open] > summary::before { transform: rotate(-90deg); }
+  details.fold > summary:focus-visible { outline: 2px solid var(--accent); border-radius: 8px; }
+  details.fold .inner { padding: 2px 14px 14px; border-top: 1px solid var(--grid); }
+  summary .m { font-weight: 500; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .ru { direction: ltr; text-align: left; unicode-bidi: isolate; }
+  .creative { background: var(--code-bg); border-radius: 8px; padding: 10px 13px; margin: 8px 0; font-size: 13px; }
+  .creative .lbl { font-size: 11px; letter-spacing: .07em; color: var(--muted); font-weight: 700; margin: 8px 0 3px; direction: rtl; text-align: right; }
+  .creative .lbl:first-child { margin-top: 0; }
+  .creative ul { margin: 0; padding: 0 0 0 18px; columns: 2; column-gap: 26px; }
+  .creative ul.he { direction: rtl; text-align: right; padding: 0 18px 0 0; }
+  .creative li { break-inside: avoid; margin-bottom: 3px; color: var(--ink2); }
+  .creative p { margin: 3px 0; color: var(--ink2); white-space: pre-line; }
+  @media (max-width: 640px) { .creative ul { columns: 1; } }
+  .typo { color: var(--crit-text); font-weight: 650; text-decoration: underline wavy; text-underline-offset: 3px; }
+
+  .recs { background: var(--accent-wash); border: 1px solid var(--grid); border-radius: 10px; padding: 14px 18px; margin: 14px 0 30px; }
+  .recs h4 { margin: 0 0 8px; font-size: 14px; color: var(--accent-deep); }
+  .recs ol { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 6px; }
+  .recs li { color: var(--ink2); }
+  .recs li b { color: var(--ink); }
+
+  /* ---------- plan ---------- */
+  .plan { display: flex; flex-direction: column; gap: 14px; margin: 18px 0; }
+  .prio { background: var(--surface); border: 1px solid var(--grid); border-radius: 10px; padding: 16px 20px; }
+  .prio h3 { margin: 0 0 4px; font-size: 16px; display: flex; gap: 10px; align-items: center; }
+  .prio .tag { font-size: 11px; font-weight: 750; letter-spacing: .08em; padding: 3px 9px; border-radius: 5px; color: #fff; }
+  .prio.p1 .tag { background: var(--crit); }
+  .prio.p2 .tag { background: #b97900; }
+  .prio.p3 .tag { background: var(--accent); }
+  .prio p.why { color: var(--muted); font-size: 12.5px; margin: 0 0 10px; }
+  .prio ol { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .prio li { color: var(--ink2); }
+  .prio li b { color: var(--ink); }
+
+  footer.src { margin-top: 50px; padding-top: 16px; border-top: 1px solid var(--grid); color: var(--muted); font-size: 12.5px; }
+  footer.src ul { margin: 6px 0 0; padding-inline-start: 18px; }
+  footer.src li { margin-bottom: 3px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="kicker">מרכז מקסימום · מימוש זכויות · maximumcenter.co.il</p>
+    <h1>ביקורת פרסום — כל הפלטפורמות, אחרי השינויים</h1>
+    <p class="sub">סקירה פורנזית של חמש פלטפורמות פרסום + אימות צולב מול GA4, בעקבות השינויים שבוצעו ב־8–13 באוגוסט: מה שונה, מה עובד, מה מבזבז כסף — עד רמת הכותרת, התיאור וה־Sitelink הבודד.</p>
+    <div class="periods">
+      <span><b>שבוע אחרון (L7):</b> 8–14.8.2026</span>
+      <span><b>שבוע קודם (P7):</b> 1–7.8.2026</span>
+      <span><b>נכון ל:</b> 15.8.2026, 09:40</span>
+      <span><b>מקור:</b> Supermetrics API + GA4</span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="ניווט מהיר">
+    <a href="#summary">תמצית</a>
+    <a href="#changes">מה השתנה</a>
+    <a href="#chart">גרף יומי</a>
+    <a href="#google">Google Ads</a>
+    <a href="#facebook">Facebook</a>
+    <a href="#taboola">Taboola</a>
+    <a href="#yandex">Yandex</a>
+    <a href="#tiktok">TikTok</a>
+    <a href="#ga4">GA4 — אימות</a>
+    <a href="#plan">תוכנית פעולה</a>
+  </nav>
+
+  <div class="verdict" id="summary">
+    <h2>השורה התחתונה</h2>
+    <p><b>המהלך עבד.</b> סך ההמרות המדווחות מכל הפלטפורמות עלה מ־<b>~272</b> בשבוע הקודם ל־<b>~470</b> בשבוע האחרון (+73%), בעוד שההוצאה הכוללת גדלה בכ־85%. גוגל הוא הסיפור הגדול: ההוצאה כמעט הוכפלה וה־CPA דווקא <b>ירד</b> מ־120 ₪ ל־102 ₪ — בעיקר בזכות קמפייני הסיעוד בעברית (CPA ‏43 ₪). טאבולה חזרה לאוויר ומייצרת ~27 פעולות ביום ב־$6.
+    <p><b>אבל יש ארבע דליפות ברורות:</b> (1) אשכול "תאונת עבודה RU" בגוגל שרף ~1,590 ₪ על פחות מ־5 המרות; (2) בדסקטופ של טאבולה קריאייטיב אחד אכל 35% מהתקציב ב־CPA פי 7.5 מהמובייל; (3) ביאנדקס הקיצוץ נחת דווקא על הקמפיינים הכי רווחיים ($2.0–2.4 להמרה) והשבוע ירד ב־46 המרות; (4) קמפיין התנועה החדש בפייסבוק הוא "בלאסט" זול — 56 אלף חשיפות בתדירות 7.2, אפס לידים. בנוסף, TikTok כבוי לגמרי מאז 13.7 — קמפיין השלד החדש לא שוגר בפועל.</p>
+  </div>
+
+  <div class="kpis" aria-label="סיכום פלטפורמות">
+    <div class="kpi">
+      <div class="name"><span class="dot" style="background:var(--c-google)"></span>Google Ads <span class="pill good">חזק</span></div>
+      <div class="big">15,527 ₪ <small>/ שבוע</small></div>
+      <div class="row"><span>המרות</span><span class="v">152 <span class="up">‎+104%‎</span></span></div>
+      <div class="row"><span>CPA</span><span class="v">102 ₪ <span class="up">‎−15%‎ ▼</span></span></div>
+      <div class="row"><span>הוצאה מול שבוע קודם</span><span class="v up">‎+73%‎</span></div>
+    </div>
+    <div class="kpi">
+      <div class="name"><span class="dot" style="background:var(--c-taboola)"></span>Taboola <span class="pill good">חזר לאוויר</span></div>
+      <div class="big">$852 <small>/ שבוע</small></div>
+      <div class="row"><span>פעולות</span><span class="v">136 <span class="up">חדש</span></span></div>
+      <div class="row"><span>CPA</span><span class="v">$6.27</span></div>
+      <div class="row"><span>מובייל $4.4 · דסקטופ</span><span class="v down">$32.9</span></div>
+    </div>
+    <div class="kpi">
+      <div class="name"><span class="dot" style="background:var(--c-yandex)"></span>Yandex.Direct <span class="pill warn">נחלש</span></div>
+      <div class="big">$848 <small>/ שבוע</small></div>
+      <div class="row"><span>המרות</span><span class="v">141 <span class="down">‎−25%‎</span></span></div>
+      <div class="row"><span>CPA</span><span class="v">$6.01 <span class="down">‎+5%‎ ▲</span></span></div>
+      <div class="row"><span>הוצאה מול שבוע קודם</span><span class="v">‎−21%‎</span></div>
+    </div>
+    <div class="kpi">
+      <div class="name"><span class="dot" style="background:var(--c-fb)"></span>Facebook <span class="pill warn">מעורב</span></div>
+      <div class="big">$920 <small>/ שבוע</small></div>
+      <div class="row"><span>לידים (טפסים)</span><span class="v">41 <span class="up">‎×4.1‎</span></span></div>
+      <div class="row"><span>CPA</span><span class="v">$22.5 <span class="down">‎+69%‎ ▲</span></span></div>
+      <div class="row"><span>הוצאה מול שבוע קודם</span><span class="v up">‎×6.9‎</span></div>
+    </div>
+    <div class="kpi">
+      <div class="name"><span class="dot" style="background:var(--muted)"></span>TikTok <span class="pill crit">כבוי</span></div>
+      <div class="big">0 ₪</div>
+      <div class="row"><span>ללא פעילות מאז</span><span class="v">13.7.2026</span></div>
+      <div class="row"><span>קמפיין חדש</span><span class="v down">שלד ללא מודעות</span></div>
+      <div class="row"><span>יתרת חשבון</span><span class="v down">0 ₪</span></div>
+    </div>
+  </div>
+
+  <h2 class="sec" id="changes">מה בדיוק השתנה, ומתי</h2>
+  <p class="secsub">שחזור ציר הזמן של השינויים מתוך הנתונים — כל תאריך מגובה בקפיצת הוצאה/חשיפות של הישויות עצמן.</p>
+  <div class="timeline">
+    <div class="tl stop"><span class="d">2.8</span> — <b>TikTok:</b> שני הקמפיינים הישנים הושבתו רשמית (הם כבר לא סיפקו מאז 13.7). נוצר שלד חדש <span dir="ltr">‏TIK | TRAFFIC | Pensia RU‏</span> — ללא מודעות, במצב טיוטה, ויתרת החשבון 0 ₪.<p>המשמעות: מי שחושב ש"הפעיל טיקטוק מחדש" — זה לא קרה בפועל.</p></div>
+    <div class="tl"><span class="d">~8.8</span> — <b>Yandex:</b> קוצצו שני קמפייני הניסוי "30.05.26" (שהיו הכי זולים בחשבון) וקבוצת המודעות Пенсия (המקור הכי גדול להמרות). במקביל קבוצת Пицуим התחילה פתאום להמיר — כנראה תוקן מעקב מטרה שהיה שבור. <b>Google:</b> הושהה Demand Gen סיעוד RU (CPA ‏88.6 ₪ — טוב מהממוצע).</div>
+    <div class="tl"><span class="d">9.8</span> — <b>Taboola:</b> החייאה מלאה — 3 קמפיינים רוסיים (סיעוד MOB/WEB, פנסיות MOB) חזרו לרוץ אחרי שבוע של אפס. <b>Facebook:</b> הוחזר לאוויר קמפיין "כספים אבודים RU" מ־2022, והושק קמפיין טפסי סיעוד חדש.</div>
+    <div class="tl"><span class="d">10.8</span> — <b>Google:</b> קפיצת מדרגה — ההוצאה היומית עלתה מ־~1,280 ₪ ל־~2,200–2,800 ₪: הופעלו מחדש אובדן כושר PMAX‏, סיעוד HE (חיפוש+PMAX), תאונת עבודה RU (חיפוש+PMAX), והושק קמפיין חדש "פנסיות חיפוש HE".</div>
+    <div class="tl"><span class="d">12.8</span> — <b>Facebook:</b> תקציב הרימרקטינג (הקמפיין היחיד שרץ קודם) קוצץ בכ־50% — וה־CPA שלו הוכפל.</div>
+    <div class="tl"><span class="d">13.8</span> — <b>Facebook:</b> הושקו 4 קמפיינים נוספים: קצבת שאירים (טפסים), אובדן כושר (טפסים, 21 מודעות), אובדן כושר (תנועה לאתר), ומודעות פנסיה (Awareness). ההוצאה היומית קפצה ל־$210–221.</div>
+  </div>
+
+  <h2 class="sec" id="chart">המרות יומיות לפי פלטפורמה</h2>
+  <p class="secsub">1–14 באוגוסט. רואים בבירור את נקודת המפנה: מ־10.8 גוגל מטפסת, טאבולה נכנסת, ויאנדקס — היחידה שיורדת. ערכי פייסבוק = לידים מטפסים; טאבולה = "פעולות" (כל כללי ההמרה יחד).</p>
+  <div class="card">
+    <h3>המרות / לידים ליום</h3>
+    <p class="note">מעבר עם העכבר מציג את ערכי כל הפלטפורמות ליום. הקווים המודגשים בקצה — ערך היום האחרון (14.8).</p>
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--c-google)"></i> Google Ads</span>
+      <span><i style="background:var(--c-taboola)"></i> Taboola</span>
+      <span><i style="background:var(--c-yandex)"></i> Yandex</span>
+      <span><i style="background:var(--c-fb)"></i> Facebook</span>
+    </div>
+    <div class="chartbox" id="mainchart"></div>
+    <details class="fold" style="border:none; margin:6px 0 0;">
+      <summary style="padding:8px 2px;">טבלת הנתונים המלאה (נגישות / בדיקה)</summary>
+      <div class="inner tablewrap" style="border:none; padding:0;">
+        <table class="data" id="dailytable"></table>
+      </div>
+    </details>
+  </div>
+
+  <!-- ================= GOOGLE ADS ================= -->
+  <h2 class="sec" id="google"><span class="swatch" style="background:var(--c-google)"></span>Google Ads — המנוע המרכזי, והוא התחזק</h2>
+  <p class="secsub">חשבון פעיל יחיד: "מקסימום" (8280553239, ₪). שני החשבונות האחרים — ללא פעילות. כל הסכומים בשקלים.</p>
+
+  <div class="statgrid">
+    <div class="stat"><div class="l">הוצאה L7</div><div class="v">15,527 ₪</div><div class="c up">‎+73%‎ מול 8,980 ₪</div></div>
+    <div class="stat"><div class="l">המרות L7</div><div class="v">152.4</div><div class="c up">‎+104%‎ מול 74.6</div></div>
+    <div class="stat"><div class="l">CPA</div><div class="v">101.9 ₪</div><div class="c up">השתפר מ־120.4 ₪</div></div>
+    <div class="stat"><div class="l">חשיפות</div><div class="v">1.61M</div><div class="c">‎+97%‎ (הרחבת PMax)</div></div>
+    <div class="stat"><div class="l">CPC ממוצע</div><div class="v">1.02 ₪</div><div class="c">CTR ‏0.95% — ירידה בגלל תמהיל Display, לא קריאייטיב</div></div>
+  </div>
+
+  <div class="card">
+    <h3>הוצאה יומית — Google Ads (₪)</h3>
+    <div class="chartbox" id="spark-google"></div>
+  </div>
+
+  <h3 style="margin:24px 0 4px;">קמפיינים — שבוע אחרון מול שבוע קודם</h3>
+  <div class="tablewrap">
+    <table class="data">
+      <thead><tr>
+        <th>קמפיין</th><th>סוג</th><th class="num">הוצאה L7 ₪</th><th class="num">המרות</th><th class="num">CPA ₪</th><th class="num">הוצאה P7 ₪</th><th class="num">CPA קודם</th><th>הערה</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="name">PMAX פנסיות RU</td><td>PMax</td><td class="num">4,271.78</td><td class="num">43.7</td><td class="num">97.69</td><td class="num">2,520.63</td><td class="num">81.68</td><td>הוגדל ‎+69%‎; שחיקת CPA סבירה לסקייל</td></tr>
+        <tr><td class="name">חיפוש פנסיות RU</td><td>Search</td><td class="num">2,906.88</td><td class="num">20.9</td><td class="num">139.42</td><td class="num">2,078.14</td><td class="num">159.86</td><td>משתפר תוך גדילה; 42% מהחשיפות אבודות על Rank</td></tr>
+        <tr><td class="name">Demand Gen פנסיה RU</td><td>Demand Gen</td><td class="num">1,851.04</td><td class="num">17.7</td><td class="num">104.34</td><td class="num">1,419.82</td><td class="num">168.22</td><td>שיפור חד עם הגדילה</td></tr>
+        <tr><td class="name">אובדן כושר עבודה PMAX RU</td><td>PMax</td><td class="num">1,012.87</td><td class="num">9.9</td><td class="num">102.00</td><td class="num">7.88</td><td class="num">—</td><td>הופעל מחדש; CPA תקין</td></tr>
+        <tr class="hl-good"><td class="name">HE | SEARCH | 2025 סיעוד</td><td>Search</td><td class="num">980.19</td><td class="num">22.5</td><td class="num">43.56</td><td class="num">9.11</td><td class="num">—</td><td><b>הכי טוב בחיפוש — ומפסיד 71% חשיפות בגלל תקציב</b></td></tr>
+        <tr class="hl-bad"><td class="name">תאונת עבודה PMAX RU</td><td>PMax</td><td class="num">853.15</td><td class="num">1.9</td><td class="num">458.68</td><td class="num">7.50</td><td class="num">—</td><td><b>ה־CPA הגרוע בחשבון</b></td></tr>
+        <tr><td class="name">PMax: סיעוד RU MEDIA</td><td>PMax</td><td class="num">842.01</td><td class="num">5.5</td><td class="num">153.93</td><td class="num">763.40</td><td class="num">134.64</td><td>יציב, CPA זוחל למעלה</td></tr>
+        <tr class="hl-good"><td class="name">HE | PMAX | 2025 סיעוד</td><td>PMax</td><td class="num">766.38</td><td class="num">18.0</td><td class="num">42.60</td><td class="num">7.29</td><td class="num">—</td><td><b>ה־CPA הטוב בחשבון</b></td></tr>
+        <tr class="hl-bad"><td class="name">תאונת עבודה RU</td><td>Search</td><td class="num">737.77</td><td class="num">3.0</td><td class="num">246.75</td><td class="num">9.03</td><td class="num">—</td><td>CPC ‏16.77 ₪; מודעת ETA ישנה אוכלת 58% מהתקציב</td></tr>
+        <tr><td class="name">ביטוח סיעודי RU</td><td>Search</td><td class="num">597.40</td><td class="num">2.0</td><td class="num">298.70</td><td class="num">725.99</td><td class="num">181.05</td><td>הידרדר; דולף לחיפושי מותגי מבטחים</td></tr>
+        <tr><td class="name">HE | BRAND | 2025</td><td>Search</td><td class="num">264.25</td><td class="num">2.0</td><td class="num">132.12</td><td class="num">118.67</td><td class="num">—</td><td>רק 34% נתח חשיפות במותג; 64% אבוד על Rank</td></tr>
+        <tr><td class="name">פנסיות חיפוש HE <span class="sub">חדש בשבוע האחרון</span></td><td>Search</td><td class="num">227.15</td><td class="num">2.0</td><td class="num">113.58</td><td class="num">0</td><td class="num">—</td><td>מודעות ברמת "Poor"; 80% חשיפות אבודות על תקציב</td></tr>
+        <tr><td class="name">מותג RU</td><td>Search</td><td class="num">216.25</td><td class="num">3.4</td><td class="num">64.55</td><td class="num">459.87</td><td class="num">469.26</td><td>הוצאה קוצצה — CPA התאושש</td></tr>
+        <tr class="hl-bad"><td class="name">Demand Gen סיעוד RU <span class="sub">הושהה ~8.8</span></td><td>Demand Gen</td><td class="num">0</td><td class="num">0</td><td class="num">—</td><td class="num">852.76</td><td class="num">88.64</td><td><b>הושהה קמפיין שהיה טוב מהממוצע</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cols2">
+    <div class="panel">
+      <h4><span class="mark-good"></span> מה עובד</h4>
+      <ul>
+        <li><b>סיעוד בעברית הוא המנצח של המהלך:</b> ‏PMAX ‏42.6 ₪ וחיפוש 43.6 ₪ להמרה — פי 2.5 זול מממוצע החשבון, וקמפיין החיפוש מפסיד 71% מהחשיפות בגלל <b>תקציב</b>. זה המנוף הכי ברור בחשבון.</li>
+        <li><b>הסקייל בפנסיות RU החזיק:</b> ‏PMAX עלה 69% עם שחיקה קלה בלבד (97.7 ₪), ו־Demand Gen פנסיה השתפר מ־168 ל־104 ₪ תוך גדילה.</li>
+        <li><b>טופס הלידים (Lead Form) בחיפוש פנסיות RU</b> הביא 26.9 המרות בשבועיים — הקהל הרוסי ממיר בטופס, עוד לפני דף הנחיתה.</li>
+        <li><b>ה־RSA החדש בפנסיות RU</b> (זווית "איתור פנסיה אבודה", סטטוס Pending=נוצר ממש עכשיו) עוקף את המודעה הוותיקה: ‏CPA ‏95.8 ₪ מול 149.8 ₪.</li>
+        <li><b>מותג:</b> ברוסית CPA ‏64.6 ₪ אחרי צמצום; מילת "максимум" ממירה ב־61 ₪.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h4><span class="mark-bad"></span> פחות טוב
+      </h4>
+      <ul>
+        <li><b>אשכול תאונת עבודה RU</b> — ‏1,590 ₪ על פחות מ־5 המרות (CPA ‏247–459 ₪). בתוכו: מודעת טקסט ישנה (ETA) מ־2019 בערך שאי־אפשר לערוך אוכלת 431 ₪ ב־CPA ‏435 ₪, בזמן שה־RSA באותה קבוצה עושה 153 ₪.</li>
+        <li><b>הושהה דווקא קמפיין טוב:</b> ‏Demand Gen סיעוד RU רץ ב־88.6 ₪ להמרה — טוב מ־6 מהקמפיינים שקיבלו את התקציב במקומו.</li>
+        <li><b>ביטוח סיעודי RU הידרדר</b> (181→299 ₪): מונחי החיפוש שלו — "harel на русском", "מגדל ביטוח", "битуах сиуди маккаби" — קליקים על מותגי מבטחים בלי המרות.</li>
+        <li><b>כמעט הכל Broad Match</b> ללא שכבת שלילות: "адвокат битуах леуми" לבדה — 547 ₪ על 2 המרות; משפחת "менора мивтахим" — ~700 ₪ על ~4.</li>
+        <li><b>הקמפיין החדש "פנסיות חיפוש HE"</b> הושק עם מודעות ברמת "Poor" — ‏3–4 כותרות בלבד (מול 15 במקבילות הרוסיות). אחת בכל זאת המירה ב־30 ₪ — יש פוטנציאל, אין תשתית.</li>
+        <li><b>"מקסימום סיעוד" (Phrase)</b> שרפה 174 ₪ בלי המרה בקמפיין המותג — לבדוק לאן הקליקים נוחתים.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin:24px 0 4px;">המודעות עצמן — כותרות ותיאורים (מילה במילה)</h3>
+  <p class="secsub">כל מודעות החיפוש הפעילות המשמעותיות. שגיאות כתיב שמצאתי מסומנות <span class="typo">בקו אדום</span> — בתחום רגיש־אמון (ביטוח/משפט) זה עולה כסף.</p>
+
+  <details class="fold" open>
+    <summary>חיפוש פנסיות RU · המודעה הראשית <span class="m">· 2,523 ₪ · 16.9 המרות · CPA ‏149.8 ₪ · CTR ‏9.1% · Strength: Good</span></summary>
+    <div class="inner">
+      <div class="creative">
+        <div class="lbl">HEADLINES (15)</div>
+        <ul class="ru"><li>Получить Пицуим И пенсионные</li><li>Узнайте размер своей пенсии</li><li>Снять пенсионные накопления</li><li>найти пенсионные накопления</li><li>Как получить пицуим</li><li>пицуим при увольнении расчет</li><li>как забрать пицуим</li><li>пицуим после увольнения</li><li>Замороженные пенсионные фонды</li><li>Снять пенсию досрочно</li><li>Не можете получить Пенсионные?</li><li>документы для получения пицуим</li><li>Деньги с пенсионного фонда</li><li>Пицуим израиль</li><li>Пицуим без 161 формы</li></ul>
+        <div class="lbl">DESCRIPTIONS (4)</div>
+        <p class="ru">Не можете получить свои пицуим? работодатель не подписывает бумаги? Мы можем помочь!
+Быстро и надежно, поможем получить ваши пенсионные на Ваш банковский счет. Нажмите тут
+Страховые компании не выплачивают Ваши деньги? Поможем оформить и получить деньги!
+Заберите свои пицуим! оставьте свои контактные данные, и мы свяжемся.</p>
+      </div>
+      <p style="color:var(--ink2); margin:6px 0 0;">יעד: <span dir="ltr">/ru/pension-and-provident-funds</span>. שימו לב לחוסר אחידות ברישיות (חלק מהכותרות באות קטנה) — קוסמטי אבל נראה.</p>
+    </div>
+  </details>
+
+  <details class="fold">
+    <summary>חיפוש פנסיות RU · ה־RSA החדש (Pending) <span class="m">· 383 ₪ · 4 המרות · CPA ‏95.8 ₪ — טוב מהראשית</span></summary>
+    <div class="inner">
+      <div class="creative">
+        <div class="lbl">HEADLINES — הזווית החדשה: איתור פנסיות אבודות</div>
+        <ul class="ru"><li>Найти потерянные пенсии</li><li>Поиск пенсионных фондов</li><li>Где ваша пенсия проверим</li><li>Накопления у работодателей</li><li>Проверка пенсионных накоплений</li><li>Получить пенсию раньше срока</li><li>Пенсионные фонды Израиль</li><li>+ 8 כותרות משותפות עם הראשית</li></ul>
+        <div class="lbl">DESCRIPTIONS</div>
+        <p class="ru">זהות לראשית (עם תיקוני רישיות: Работодатель, Оставьте)</p>
+      </div>
+      <p style="color:var(--ink2); margin:6px 0 0;">נוצר/נערך ממש לאחרונה (Strength עדיין Pending). הזווית "לאתר פנסיה אבודה" ממירה זול יותר מ"למשוך פיצויים" — שווה להסיט אליה תקציב.</p>
+    </div>
+  </details>
+
+  <details class="fold" open>
+    <summary>HE | SEARCH | 2025 סיעוד · המודעה המנצחת של החשבון <span class="m">· 980 ₪ · 22.5 המרות · CPA ‏43.6 ₪ · CTR ‏18.6%</span></summary>
+    <div class="inner">
+      <div class="creative">
+        <div class="lbl">HEADLINES (15)</div>
+        <ul class="he"><li>תביעות ביטוח סיעודי</li><li>קבלו כסף מביטוח סיעודי</li><li>מימוש זכויות בביטוח סיעודי</li><li>צרו קשר ובידקו מה מגיע לכם</li><li>יש לך ביטוח סיעודי?</li><li>צריכים עזרה מול ביטוח סיעודי?</li><li>תביעתך לקצבת סיעוד נדחתה?</li><li>תהליך ערעור על תביעות סיעוד</li><li>תביעת ביטוח סיעודי הראל</li><li>הראל ביטוח סיעודי תביעה</li><li>מחפשים עורך דין תביעות סיעוד?</li><li>תביעת ביטוח סיעודי</li><li>תביעה ביטוח סיעודי קופת חולים</li><li>תביעת סיעוד הראל כללית</li><li>מחפשים מומחה לתביעות סיעוד?</li></ul>
+        <div class="lbl">DESCRIPTIONS (4)</div>
+        <p>קצבת סיעוד יכולה להגיע לאלפי שקלים כל חודש. צרו קשר ותגלו כמה מגיעה לכם
+אנחנו בעלי ידע וניסיון רב שנים בכל הקשור לסיוע במימוש זכויות רפואיות בתחום הביטוח הסיעודי
+לחברתנו אחוזי הצלחה גבוהים הנובעים מהניסיון הרב, המקצועיות, והנחישות.
+חברתנו מתמחה בטיפול בתביעות סיעוד, לחברתנו אחוזי הצלחה גבוהים הנובעים מהניסיון הרב.</p>
+      </div>
+      <p style="color:var(--ink2); margin:6px 0 0;">היעד: ‏<span dir="ltr">/ltc</span>. המבנה עובד: שאלות ("תביעתך נדחתה?") + שמות מבטחים (הראל, כללית) + הבטחה כספית קונקרטית בתיאור. זו התבנית להעתיק לקמפיין הפנסיה העברי.</p>
+    </div>
+  </details>
+
+  <details class="fold">
+    <summary>ביטוח סיעודי RU · 3 מודעות <span class="m">· 597 ₪ · 2 המרות · שגיאות כתיב מרובות</span></summary>
+    <div class="inner">
+      <div class="creative">
+        <div class="lbl">מודעה ראשית (537 ₪) — HEADLINES נבחרות</div>
+        <ul class="ru"><li>Пособие по битуах Сиуди</li><li>Битуах СИУДИ отказал?</li><li>Выплаты по битуах сиуди</li><li>Иск против Битуах Сиуди</li><li>Адвокат Битуах Сиуди</li><li><span class="typo">битуах сиюди</span> (שגיאה)</li><li>Вы Сиуди? Получите <span class="typo">выпалты</span> (שגיאה)</li><li>клалит битуах сиуди</li></ul>
+        <div class="lbl">DESCRIPTIONS — כולל תיאור קטוע</div>
+        <p class="ru">У вас есть битуах сиуди, вы подали иск и получили отказ? Центр Максимум поможет вам!
+пособие может составлять несколько тыс. шек. ежемесячно. Проверьте что <span class="typo">пологается</span> вам
+Не можете обходиться без посторонней помощи? Не можете оставаться дома одни? <span class="typo">Данное</span> ← נקטע באמצע משפט
+Данное пособие может составлять несколько тыс. шек. ежемесячно! Бесплатная консультация!</p>
+        <div class="lbl">באחיות שלה גם</div>
+        <p class="ru"><span class="typo">пицум</span>, <span class="typo">добится</span>, וכפילות כותרות בין המודעות</p>
+      </div>
+      <p style="color:var(--ink2); margin:6px 0 0;">שיעור ההמרה נחתך בחצי השבוע. שילוב של קופי מרושל + תנועה ניווטית למותגי מבטחים = הקמפיין החלש במערך הרוסי.</p>
+    </div>
+  </details>
+
+  <details class="fold">
+    <summary>תאונת עבודה RU · RSA מול ETA ישנה <span class="m">· ההוכחה הכי ברורה בחשבון למה להשבית מודעות Legacy</span></summary>
+    <div class="inner">
+      <div class="tablewrap"><table class="data">
+        <thead><tr><th>מודעה</th><th class="num">הוצאה ₪</th><th class="num">CTR</th><th class="num">המרות</th><th class="num">CPA ₪</th></tr></thead>
+        <tbody>
+          <tr class="hl-bad"><td class="name">Expanded Text Ad ישנה (344542488222) — לא ניתנת לעריכה</td><td class="num">430.92</td><td class="num">3.3%</td><td class="num">1.0</td><td class="num">435</td></tr>
+          <tr class="hl-good"><td class="name">RSA באותה קבוצה (720883269284)</td><td class="num">306.85</td><td class="num">5.1%</td><td class="num">2.0</td><td class="num">153</td></tr>
+        </tbody>
+      </table></div>
+      <div class="creative">
+        <div class="lbl">ה־RSA — HEADLINES נבחרות</div>
+        <ul class="ru"><li>Производственная травма?</li><li>Проверьте сколько положено Вам</li><li>травма на производстве выплаты</li><li>пицуим за теунат авода</li><li>теунат авода битуах леуми</li><li>Травма на работе? макпицуим</li></ul>
+        <div class="lbl">DESCRIPTIONS</div>
+        <p class="ru">Поможем вам добиться справедливой компенсации и защитить ваши права. Наш опыт – ваш успех
+У Вас произошла травма на рабочем месте? Теунат авода? Травма по дороге на работу?
+Пострадали на работе? Поможем добиться компенсации и защитить ваши права!</p>
+      </div>
+      <p style="color:var(--ink2); margin:6px 0 0;">בחשבון יש עוד 3 מודעות ETA ישנות פעילות. הן שריד טכני — להשבית את כולן.</p>
+    </div>
+  </details>
+
+  <details class="fold">
+    <summary>מותג — עברית + רוסית <span class="m">· HE: ‏CPA ‏132 ₪, רק 34% נתח חשיפות · RU: ‏CPA ‏64.6 ₪</span></summary>
+    <div class="inner">
+      <div class="creative">
+        <div class="lbl">HE | BRAND — HEADLINES נבחרות</div>
+        <ul class="he"><li>מרכז מקסימום – מימוש זכויות</li><li>מקסימום ביטוח ופיצויים</li><li>מיכאל מנקר – זכויות</li><li>מרכז מקסימום האתר הרשמי</li><li>תוצאה מקסימלית – מקסימום</li><li>מומחה ביטוח סיעודי מקסימום</li></ul>
+        <div class="lbl">RU BRAND — HEADLINES נבחרות</div>
+        <ul class="ru"><li>Центр Реализации прав Максимум</li><li>Михаил Манкер- Центр Максимум</li><li>Максимум- максимальные выплаты</li><li>Центр Реализации прав <span class="typo">MAXIMU</span> (קטוע)</li><li>Помощь в получении Пицуим</li></ul>
+        <div class="lbl">RU DESCRIPTIONS</div>
+        <p class="ru">Страховые компании отказываются платить? оставьте ваши <span class="typo">даные</span> и мы свяжемся с Вами</p>
+      </div>
+      <p style="color:var(--ink2); margin:6px 0 0;">בעיה מבנית במותג העברי: אסטרטגיית Target Impression Share אבל רק 34% נתח בפועל ו־64% אבודים על Rank — כנראה מתחרים מציעים על המותג או שה־Quality Score נמוך. במותג הרוסי ה־CPA התאושש מ־469 ל־64.6 ₪ אחרי הצמצום.</p>
+    </div>
+  </details>
+
+  <details class="fold">
+    <summary>פנסיות חיפוש HE (חדש) · שתי מודעות "Poor" <span class="m">· 3–4 כותרות בלבד — לפני סקייל חייבים למלא</span></summary>
+    <div class="inner">
+      <div class="creative">
+        <div class="lbl">מודעה 1 — "חיפוש נכס אבוד" (151 ₪, 0 המרות)</div>
+        <ul class="he"><li>איתור כספים אבודים</li><li>הר הכסף</li><li>משיכת פנסיה גמל מנהלים <span class="typo">פיצוים</span></li><li>בוא לבדוק כמה כסף יש לכם</li></ul>
+        <div class="lbl">מודעה 2 — "פנסיה גמל ופיצוים" (61 ₪, 2 המרות, CPA ‏30 ₪!)</div>
+        <ul class="he"><li>חיפוש פנסיה, משיכת כספי <span class="typo">פיצוים</span></li><li>לחצו לפרטים ויעוץ</li><li>מקסימום המרכז למימוש זכויות</li></ul>
+        <div class="lbl">DESCRIPTIONS</div>
+        <p>לא יודע איפה הפנסיה שלך? לא מצליח למשוך <span class="typo">פיצוים</span>? אין לך זמן להתעסק בניירת?
+צרו איתנו קשר ואנחנו נמצא את הכסף שאפילו לא ידעתם אליו</p>
+      </div>
+      <p style="color:var(--ink2); margin:6px 0 0;">"פיצוים" במקום "פיצויים" חוזר בכל הקמפיין. המודעה השנייה המירה ב־30 ₪ למרות התשתית — הביקוש קיים; להשלים ל־10+ כותרות ואז להעלות תקציב (80% מהחשיפות אבודות על תקציב כבר עכשיו).</p>
+    </div>
+  </details>
+
+  <h3 style="margin:24px 0 4px;">Sitelinks, Callouts ונכסים — מה מייצר ומה תקוע</h3>
+  <div class="tablewrap">
+    <table class="data">
+      <thead><tr><th>נכס</th><th>קמפיין</th><th>טקסט</th><th>סטטוס</th><th class="num">חשיפות 14 י׳</th><th class="num">קליקים</th><th class="num">המרות</th></tr></thead>
+      <tbody>
+        <tr class="hl-good"><td>Lead Form</td><td>חיפוש פנסיות RU</td><td>טופס לידים מובנה</td><td>Approved</td><td class="num">3,932</td><td class="num">364</td><td class="num">26.9</td></tr>
+        <tr class="hl-good"><td>Sitelink</td><td>חיפוש פנסיות RU</td><td class="ru">Пенсионные отчисления</td><td>Approved</td><td class="num">1,848</td><td class="num">274</td><td class="num">21.0</td></tr>
+        <tr><td>Sitelink</td><td>חיפוש פנסיות RU</td><td class="ru">Пицуим</td><td>Approved (limited)</td><td class="num">948</td><td class="num">148</td><td class="num">14.2</td></tr>
+        <tr><td>Sitelink</td><td>חיפוש פנסיות RU</td><td class="ru">Битуах Сиуди</td><td>Approved / limited</td><td class="num">1,439</td><td class="num">178</td><td class="num">11.9</td></tr>
+        <tr class="hl-good"><td>Sitelink</td><td>HE | SEARCH סיעוד</td><td>ביטוח לאומי</td><td>Approved (limited)</td><td class="num">550</td><td class="num">98</td><td class="num">20.0</td></tr>
+        <tr><td>Sitelink</td><td>HE | SEARCH סיעוד</td><td>ביטוח סיעודי</td><td>Approved (limited)</td><td class="num">377</td><td class="num">69</td><td class="num">14.5</td></tr>
+        <tr class="hl-good"><td>Callout</td><td>HE | SEARCH סיעוד</td><td>ליווי צמוד / שירות עד בית הלקוח / פגישה ללא <span class="typo">התחיבות</span></td><td>Approved</td><td class="num">334</td><td class="num">60</td><td class="num">9.0</td></tr>
+        <tr class="hl-bad"><td>Sitelink</td><td>תאונת עבודה PMAX RU</td><td class="ru">Битуах Леуми / Сиуди / Пицуим</td><td>Approved (limited)</td><td class="num">76,816</td><td class="num">1,115</td><td class="num">0.8</td></tr>
+        <tr><td>Sitelink ×2</td><td>PMax סיעוד RU MEDIA</td><td class="ru">Травмы и аварии · Пицуим</td><td>Approved (limited)</td><td class="num">141,450</td><td class="num">5,008</td><td class="num">8.7</td></tr>
+        <tr class="hl-bad"><td>Sitelink</td><td>מותג RU</td><td class="ru">Битуах Леуми</td><td><span class="pill crit">נפסל — Disapproved</span></td><td class="num">3</td><td class="num">2</td><td class="num">0</td></tr>
+        <tr><td>Callout</td><td>אובדן כושר PMAX RU</td><td class="ru">Быстро и качественно / Многолетний опыт / <span class="typo">Высокий % успешный дел</span> (שגיאת דקדוק)</td><td>Approved</td><td class="num">15,362</td><td class="num">120</td><td class="num">—</td></tr>
+        <tr><td>Snippet</td><td>קמפייני RU חיפוש</td><td class="ru">инвалидность / травма / сиуди / пицуим…</td><td>Approved</td><td class="num">4</td><td class="num">0</td><td class="num">0</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="secsub">דפוס בולט: הרבה נכסים רוסיים בסטטוס "Approved (limited)" (מגבלת שפה/טריידמארק — שווה בדיקה ב־Policy Manager), Sitelink אחד פסול במותג RU, וה־Sitelinks של PMax תאונת עבודה מקבלים ווליום ענק כמעט בלי המרות — בדיוק כמו הקמפיין שלהם.</p>
+
+  <h3 style="margin:24px 0 4px;">לאן הכסף דולף — מונחי חיפוש</h3>
+  <div class="tablewrap">
+    <table class="data">
+      <thead><tr><th>מונח חיפוש</th><th>קמפיין</th><th class="num">הוצאה ₪ (L7)</th><th class="num">המרות</th></tr></thead>
+      <tbody>
+        <tr><td class="ru">адвокат битуах леуми <span class="sub" style="direction:rtl">(מילת מפתח Broad)</span></td><td>תאונת עבודה RU</td><td class="num">547.00</td><td class="num">2.0</td></tr>
+        <tr><td class="ru">менора мивтахим (משפחה שלמה)</td><td>חיפוש פנסיות RU</td><td class="num">~700</td><td class="num">~4</td></tr>
+        <tr class="hl-bad"><td class="ru">битуах леуми пособие по старости</td><td>תאונת עבודה RU</td><td class="num">105.96</td><td class="num">0</td></tr>
+        <tr class="hl-bad"><td class="ru">harel на русском · арель битуах</td><td>ביטוח סיעודי RU</td><td class="num">127.46</td><td class="num">0</td></tr>
+        <tr class="hl-bad"><td>הר הכספים gov</td><td>פנסיות חיפוש HE</td><td class="num">66.82</td><td class="num">0</td></tr>
+        <tr class="hl-bad"><td>איילון מיטב מקיפה · מגדל ביטוח</td><td>פנסיות RU / סיעודי RU</td><td class="num">101.48</td><td class="num">0</td></tr>
+        <tr><td>מקסימום סיעוד (Phrase)</td><td>HE | BRAND</td><td class="num">174.07</td><td class="num">0</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="recs">
+    <h4>המלצות Google Ads</h4>
+    <ol>
+      <li><b>להכפיל־שלש את תקציב HE | SEARCH סיעוד</b> (מפסיד 71% חשיפות על תקציב ב־CPA ‏43 ₪) ולהעלות את HE | PMAX סיעוד.</li>
+      <li><b>לעצור את דימום תאונת עבודה RU:</b> להשבית את מודעת ה־ETA הישנה מיד, לחתוך תקציב ל־PMAX עד שיש אות, ולהעביר את הכסף לסיעוד HE.</li>
+      <li><b>להחזיר את Demand Gen סיעוד RU</b> — רץ ב־88.6 ₪ להמרה, טוב מרוב מה שהחליף אותו.</li>
+      <li><b>שכבת מילות שלילה חשבונית:</b> מותגי מבטחים (מנורה, מבטחים, הראל, מגדל, איילון, מיטב + התעתיקים הרוסיים), "битуах леуми пособие/по старости", "הר הכסף gov". חיסכון מוערך: 10–15% מתקציב החיפוש.</li>
+      <li><b>להשלים את מודעות "פנסיות חיפוש HE" ל־10+ כותרות</b> לפי התבנית המנצחת של סיעוד HE, לתקן "פיצוים"→"פיצויים", ואז להעלות תקציב.</li>
+      <li><b>לתקן את כל שגיאות הכתיב ברוסית</b> (מסומנות למעלה) ואת ה־Sitelink הפסול במותג RU.</li>
+      <li><b>מותג HE:</b> לברר למה רק 34% נתח חשיפות תחת Target IS — הצעת מחיר/תקציב/דירוג.</li>
+    </ol>
+  </div>
+
+  <!-- ================= FACEBOOK ================= -->
+  <h2 class="sec" id="facebook"><span class="swatch" style="background:var(--c-fb)"></span>Facebook — הרחבה אגרסיבית, איכות מעורבת</h2>
+  <p class="secsub">חשבון פעיל יחיד: "מקסימום" (act_253000950, <b>דולר</b>). 12 חשבונות משותפים נוספים אינם נגישים דרך רישיון ה־Supermetrics — אם אחד מהם מפרסם, הוא לא בסקירה. כל הפעילות ברוסית; אין קמפיין עברי חי בחשבון.</p>
+
+  <div class="statgrid">
+    <div class="stat"><div class="l">הוצאה L7</div><div class="v">$920</div><div class="c up">‎×6.9‎ מול $133</div></div>
+    <div class="stat"><div class="l">לידים (טפסים) L7</div><div class="v">41</div><div class="c up">‎×4.1‎ מול 10</div></div>
+    <div class="stat"><div class="l">עלות ליד</div><div class="v">$22.5</div><div class="c down">היה $13.3 (סקייל)</div></div>
+    <div class="stat"><div class="l">מגמה יומית</div><div class="v">10 לידים/יום</div><div class="c up">13–14.8 — משתפר</div></div>
+  </div>
+
+  <div class="card">
+    <h3>הוצאה יומית — Facebook ($)</h3>
+    <div class="chartbox" id="spark-fb"></div>
+  </div>
+
+  <div class="tablewrap">
+    <table class="data">
+      <thead><tr><th>קמפיין</th><th>מטרה</th><th class="num">הוצאה L7 $</th><th class="num">לידים</th><th class="num">$/ליד</th><th class="num">CTR</th><th>הערה</th></tr></thead>
+      <tbody>
+        <tr><td class="name">סיעוד RU <span class="typo">טופח</span> לידים 1.26 <span class="sub">הושק 9.8 · שגיאת כתיב בשם</span></td><td>Leads</td><td class="num">291.36</td><td class="num">7</td><td class="num">41.62</td><td class="num">1.20%</td><td>המוציא הגדול — וה־CPA הגרוע מבין הטפסים</td></tr>
+        <tr class="hl-good"><td class="name">כספים אבודים | RU | 2022 <span class="sub">הוחזר 9.8</span></td><td>Leads</td><td class="num">275.12</td><td class="num">25</td><td class="num">11.00</td><td class="num">1.66%</td><td><b>הכוכב: קריאייטיב מ־2022 מנצח את כל 2026</b></td></tr>
+        <tr><td class="name">רימרקטינג | RU | 2026</td><td>Leads</td><td class="num">149.23</td><td class="num">5</td><td class="num">29.85</td><td class="num">1.03%</td><td>תקציב קוצץ 50% ב־12.8; CPA הוכפל מ־$13.3</td></tr>
+        <tr class="hl-good"><td class="name">קצבת שאירים 2026 RU <span class="sub">הושק 13.8</span></td><td>Leads</td><td class="num">68.28</td><td class="num">2</td><td class="num">34.14</td><td class="num">2.04%</td><td>ה־CTR והCPC הטובים בחשבון — מוקדם אבל מבטיח</td></tr>
+        <tr><td class="name">אובדן כושר טפסים RU <span class="sub">הושק 13.8</span></td><td>Leads</td><td class="num">67.43</td><td class="num">2</td><td class="num">33.72</td><td class="num">0.95%</td><td>21 מודעות בסט אחד — פיצול קיצוני</td></tr>
+        <tr><td class="name">מודעות פנסיה RU <span class="sub">הושק 13.8</span></td><td>Awareness</td><td class="num">34.97</td><td class="num">0</td><td class="num">—</td><td class="num">0.17%</td><td>THRUPLAY — טופ פאנל מכוון</td></tr>
+        <tr class="hl-bad"><td class="name">אובדן כושר — דף נחיתה RU <span class="sub">הושק 13.8</span></td><td>Traffic</td><td class="num">33.97</td><td class="num">0</td><td class="num">0.33%</td><td class="num"></td><td><b>דגל אדום: ראו למטה</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cols2">
+    <div class="panel">
+      <h4><span class="mark-good"></span> מה עובד</h4>
+      <ul>
+        <li><b>מודעת "כספים אבודים" מ־2022 — הנכס הכי טוב בחשבון:</b> ‏$11 לליד, 25 לידים, קופי סטורי ארוך על "Вадим" שמצא 59,000 ₪ בקרנות נשכחות. הוחזרה כמו שהיא — ומנצחת את כל הקריאייטיבים החדשים פי 2–4.</li>
+        <li><b>שאירים — ההשקה הכי מבטיחה:</b> ‏CTR ‏2.3%, ‏CPC ‏$0.64, וריאנט הכותרת <span class="ru">"Не знаете, положена ли вам пенсия по потере кормильца?"</span> מגיע ל־CTR ‏3.06% — הטוב בחשבון. כותרות־שאלה אמפתיות מנצחות הבטחות גנריות.</li>
+        <li><b>בקמפיין הסיעוד, המודעה החדשה "-13"</b> עוקפת את "-9" הוותיקה (CTR ‏1.6% מול 1.13%, אותם לידים בחצי עלות) — מועמדת לקבל את התקציב.</li>
+        <li><b>קצב הלידים עולה:</b> ‏9–10 לידים/יום ב־13–14.8 מול 1–2 לפני המהלך.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h4><span class="mark-bad"></span> פחות טוב</h4>
+      <ul>
+        <li><b>קמפיין התנועה = דגל אדום:</b> ‏CPM ‏$0.61, ‏56 אלף חשיפות בתדירות 7.17 תוך יומיים, ‏184 קליקים, ‏0 לידים — דפוס קלאסי של Audience Network זול. וגם: מטרת האופטימיזציה של הסט היא <b>REPLIES</b> — סתירה פנימית לקמפיין תנועה לאתר.</li>
+        <li><b>הסיעוד יקר:</b> ‏$41.6 לליד — כמעט פי 4 מ"כספים אבודים". המודעה "-9" אוכלת 54% מהתקציב ב־$79 לליד.</li>
+        <li><b>פיצול לימוד קיצוני:</b> ‏21 מודעות בסט של $34/יום (אובדן כושר) ו־13 בסיעוד — רוב המודעות מתחת ל־$6, הסט לא יצא מ־Learning.</li>
+        <li><b>מודעות הרימרקטינג</b> — שגיאת כתיב <span class="ru typo">"пологается"</span> רצה חודשים, וכתובת היעד של מודעת טופס היא… לינק ליוטיוב.</li>
+        <li><b>חשד לספירה כפולה:</b> לידים מפיקסל (35) כמעט חופפים ללידי הטפסים (41) — לוודא דדופ לפני שסוכמים.</li>
+      </ul>
+    </div>
+  </div>
+
+  <details class="fold">
+    <summary>הקריאייטיבים המלאים — פייסבוק <span class="m">· כולל מודעת "Вадим" המנצחת וכל וריאנטי הכותרת</span></summary>
+    <div class="inner">
+      <div class="creative">
+        <div class="lbl">"כספים אבודים 2022" — הקופי המנצח ($11/ליד)</div>
+        <p class="ru">Вадим обратился в нашу компанию полгода назад, после двух лет неудачных попыток самостоятельно найти пенсионные накопления.
+После начала проверки, наш менеджер обнаружил у Вадима 15,000 шек., которые Вадим пытался найти, а так же более 44,000 шекелей в трех разных пенсионных фондах, о которых Вадим ничего не знал.
+Как такое возможно? … Вадим получил на свой счет все свои сбережения, буквально не выходя из дома.
+Убедитесь, может и у вас есть деньги, о которых вы не знаете? Нажмите тут 👇</p>
+        <div class="lbl">וריאנטי כותרת (CTR) — כספים אבודים</div>
+        <ul class="ru"><li>Нажмите тут для дополнительной информации — 2.10%</li><li>Снять пенсионные и пицуим — 1.68%</li><li>Оформим перевод на Ваш банковский счет — 1.27%</li><li>Оставить заявку — 1.34%</li><li>Получите Ваши деньги — 1.21%</li></ul>
+        <div class="lbl">סיעוד (Битуах Сиуди) — הקופי</div>
+        <p class="ru">Если вы или ваши родители нуждаются в посторонней помощи — возможно, страховая компания обязана платить каждый месяц. Многие получают отказ или не знают, что у них вообще есть ביטוח סיעודי (Битуах Сиуди). Мы помогаем разобраться и пройти процесс правильно. 👉 Оставьте данные — мы проверим, есть ли право на выплаты.</p>
+        <div class="lbl">וריאנטי כותרת — סיעוד</div>
+        <ul class="ru"><li>платить годами за Битуах Сиуди? — 1.83% (במודעה החדשה)</li><li>Битуах Сиуди — знаете ли вы свои права? — 1.57%</li><li>Битуах Сиуди: отказ ещё не конец — 1.48%</li><li>Поможем получить выплаты Битуах Сиуди — 0.75% (הגרוע)</li></ul>
+        <div class="lbl">שאירים — הקופי + הכותרת המנצחת של החשבון</div>
+        <p class="ru">Потеряли близкого? Возможно, есть право на пенсию … "Не знаете, положена ли вам пенсия по потере кормильца? Мы помогаем проверить и разобраться." — CTR 3.06%</p>
+        <div class="lbl">רימרקטינג — עם השגיאה</div>
+        <p class="ru">Многие наши клиенты даже не знали, что им полагаются выплаты. Мы помогаем получить всё, что вам причитается… 📞 Оставьте заявку — и мы поможем получить то что вам <span class="typo">пологается</span> по закону!</p>
+      </div>
+    </div>
+  </details>
+
+  <div class="recs">
+    <h4>המלצות Facebook</h4>
+    <ol>
+      <li><b>לעצור/לתקן את קמפיין התנועה:</b> להחליף אופטימיזציית REPLIES ליעד רלוונטי, להוציא Audience Network, ולהגביל תדירות — או פשוט לכבות ולהעביר לטפסים.</li>
+      <li><b>להסיט תקציב לזוכים:</b> בסיעוד — מ"-9" ל"-13"; בחשבון — להגדיל "כספים אבודים" ($11/ליד) ושאירים.</li>
+      <li><b>לאחד את סט 21 המודעות ל־3–5</b> כדי לצאת מ־Learning Limited.</li>
+      <li><b>לתקן:</b> ‏"пологается"→"полагается", שם הקמפיין "טופח"→"טופס", וכתובת היעד (יוטיוב) במודעות הרימרקטינג.</li>
+      <li><b>לבדוק דדופ לידים</b> פיקסל מול טפסים לפני שמדווחים סה"כ.</li>
+    </ol>
+  </div>
+
+  <!-- ================= TABOOLA ================= -->
+  <h2 class="sec" id="taboola"><span class="swatch" style="background:var(--c-taboola)"></span>Taboola — חזרה מוצלחת, עם שני חורים</h2>
+  <p class="secsub">חשבון 1487809 (דולר). אפס פעילות עד 8.8 — הופעל מחדש ב־9.8 עם 3 קמפיינים רוסיים ותיקים. 4 קמפיינים עבריים חדשים בנויים ומאושרים — אבל לא שוגרו.</p>
+
+  <div class="statgrid">
+    <div class="stat"><div class="l">הוצאה L7</div><div class="v">$852</div><div class="c">מ־0 בשבוע הקודם</div></div>
+    <div class="stat"><div class="l">פעולות (כל הכללים)</div><div class="v">136</div><div class="c">‎22–30 ליום, יציב</div></div>
+    <div class="stat"><div class="l">CPA משוקלל</div><div class="v">$6.27</div><div class="c">מובייל $4.3–4.4 · דסקטופ $32.9</div></div>
+    <div class="stat"><div class="l">ניצול תקציב</div><div class="v">$189/210</div><div class="c">קרוב לתקרה היומית — המובייל חסום־תקציב</div></div>
+  </div>
+
+  <div class="card">
+    <h3>הוצאה יומית — Taboola ($)</h3>
+    <div class="chartbox" id="spark-taboola"></div>
+  </div>
+
+  <h3 style="margin:24px 0 4px;">הקריאייטיבים (Items) — הכותרת היא המודעה</h3>
+  <div class="tablewrap">
+    <table class="data">
+      <thead><tr><th>כותרת (מילה במילה)</th><th>קמפיין</th><th class="num">הוצאה $</th><th class="num">CTR</th><th class="num">פעולות</th><th class="num">CPA $</th></tr></thead>
+      <tbody>
+        <tr class="hl-bad"><td class="ru name">Битуах Сиуди, узнайте кому полагаются выплаты</td><td>סיעוד WEB (דסקטופ)</td><td class="num">295.75</td><td class="num">0.026%</td><td class="num">9</td><td class="num">32.86</td></tr>
+        <tr class="hl-good"><td class="ru name">Выплаты по «Битуах Сиуди» и как их добиться?</td><td>סיעוד MOB</td><td class="num">161.35</td><td class="num">0.156%</td><td class="num">40</td><td class="num">4.03</td></tr>
+        <tr><td class="ru name">Как получить страховые выплаты от БИТУАХ СИУДИ [Узнать]</td><td>סיעוד MOB</td><td class="num">108.40</td><td class="num">0.138%</td><td class="num">21</td><td class="num">5.16</td></tr>
+        <tr><td class="ru name">Простые шаги к пенсии и пицуим [Получите информацию]</td><td>פנסיות MOB</td><td class="num">120.47</td><td class="num">0.166%</td><td class="num">21</td><td class="num">5.74</td></tr>
+        <tr class="hl-good"><td class="ru name">Получите Пицуим без формы 161 (Узнайте как)</td><td>פנסיות MOB</td><td class="num">119.21</td><td class="num">0.185%</td><td class="num">29</td><td class="num">4.11</td></tr>
+        <tr class="hl-good"><td class="ru name">Как упростить получение пенсии и пицуим [Смотрите здесь]</td><td>פנסיות MOB</td><td class="num">47.05</td><td class="num">0.208%</td><td class="num">16</td><td class="num"><b>2.94</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cols2">
+    <div class="panel">
+      <h4><span class="mark-good"></span> מה עובד</h4>
+      <ul>
+        <li><b>מובייל מצוין:</b> סיעוד $4.42 ופנסיות $4.34 לפעולה, 22–30 פעולות/יום יציב.</li>
+        <li><b>פורמטים מנצחים:</b> כותרת־שאלה (<span class="ru">"…и как их добиться?"</span> — $4.03) וכאב קונקרטי (<span class="ru">"без формы 161"</span> — $4.11) מנצחים ניסוחים גנריים.</li>
+        <li><b>מנצח מורעב:</b> ‏<span class="ru">"Как упростить получение…"</span> — ה־CTR וה־CPA הטובים בחשבון ($2.94) אבל מקבל הכי מעט חשיפות מהאלגוריתם. שווה שכפול/דחיפה.</li>
+        <li><b>פלייסמנטים חזקים:</b> ‏9TV ($6.52) ו־Vesty ($6.29) = 63% מההוצאה; ‏NEWSru Channel ‏$3.07.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h4><span class="mark-bad"></span> פחות טוב</h4>
+      <ul>
+        <li><b>הדסקטופ שורף:</b> ‏35% מההוצאה, ‏7% מההמרות, קריאייטיב יחיד ללא רוטציה, ‏CPA פי 7.5 מהמובייל.</li>
+        <li><b>אפס חסימות פלייסמנט</b> על 434 אתרים: ‏Linkvertise עם CTR ‏8.4% (דפוס click-farm), אתרי דסקטופ עבריים (Walla, Ynet, Globes) בלי המרות, וזליגה גיאוגרפית (טורקיה, תאילנד, הודו, מהדורות Weather Channel של מדינות בריה"מ).</li>
+        <li><b>"פעולות" ≠ בהכרח לידים:</b> כל כללי ההמרה נספרים יחד. ‏GA4 רואה מטאבולה יחס המרה נמוך פי 3 מיאנדקס — לוודא מה נספר לפני שסומכים על $6.</li>
+        <li><b>4 קמפיינים עבריים מוכנים (Landing/Article × Mobile/Desktop) ולא שוגרו</b> — ההזדמנות שהוכיחה את עצמה בגוגל יושבת כאן על המדף.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="recs">
+    <h4>המלצות Taboola</h4>
+    <ol>
+      <li><b>להעביר את ה־$70/יום מהדסקטופ למובייל</b> (או לבנות אותו מחדש עם הכותרות המנצחות) — המובייל ממילא נתקע בתקרה.</li>
+      <li><b>לחסום:</b> ‏Linkvertise, אתרים עבריים בדסקטופ בלי המרות, ולוודא טירגוט גיאוגרפי ישראל בלבד.</li>
+      <li><b>לדחוף את הקריאייטיב המורעב</b> ($2.94) בשכפול או קמפיין ייעודי.</li>
+      <li><b>לשגר את 4 קמפייני העברית</b> בתקציב הבדיקה שכבר הוגדר ($21/יום) — עברית מוכיחה את עצמה בגוגל.</li>
+      <li><b>לאמת את הגדרת ההמרות</b> מול הלידים בפועל (CRM).</li>
+    </ol>
+  </div>
+
+  <!-- ================= YANDEX ================= -->
+  <h2 class="sec" id="yandex"><span class="swatch" style="background:var(--c-yandex)"></span>Yandex.Direct — הקיצוץ פגע דווקא במנצחים</h2>
+  <p class="secsub">חשבון maximumcenter-co-il (דולר). הערוץ האיכותי ביותר לפי GA4 (יחס המרה 10.9% לסשן) — והיחיד שנחלש השבוע.</p>
+
+  <div class="statgrid">
+    <div class="stat"><div class="l">הוצאה L7</div><div class="v">$848</div><div class="c down">‎−21%‎ מול $1,066</div></div>
+    <div class="stat"><div class="l">המרות L7</div><div class="v">141</div><div class="c down">‎−25%‎ מול 187</div></div>
+    <div class="stat"><div class="l">CPA</div><div class="v">$6.01</div><div class="c down">היה $5.70</div></div>
+    <div class="stat"><div class="l">נקודת השבר</div><div class="v">8–10.8</div><div class="c">מ־26.7 המרות/יום ל־13–18; התאושש חלקית מ־11.8</div></div>
+  </div>
+
+  <div class="card">
+    <h3>הוצאה יומית — Yandex ($)</h3>
+    <div class="chartbox" id="spark-yandex"></div>
+  </div>
+
+  <div class="tablewrap">
+    <table class="data">
+      <thead><tr><th>קמפיין</th><th class="num">הוצאה L7 $</th><th class="num">המרות</th><th class="num">CPA $</th><th class="num">הוצאה P7 $</th><th class="num">המרות P7</th><th>מה קרה</th></tr></thead>
+      <tbody>
+        <tr><td class="name ru">Битуах сиуди — Поиск+Сети</td><td class="num">287.34</td><td class="num">51</td><td class="num">5.63</td><td class="num">322.91</td><td class="num">61</td><td>העוגן היציב; מודעה בודדת בלבד</td></tr>
+        <tr><td class="name ru">Pension Networks</td><td class="num">281.52</td><td class="num">34</td><td class="num">8.28</td><td class="num">321.25</td><td class="num">30</td><td>השתפר, אבל עדיין היקר מבין הגדולים; 28 מודעות מתות</td></tr>
+        <tr class="hl-bad"><td class="name ru">Пенсии и пицуим — Поиск+Сети</td><td class="num">266.78</td><td class="num">45</td><td class="num">5.93</td><td class="num">338.29</td><td class="num">76</td><td><b>עיקר הירידה: קבוצת Пенсия קוצצה 38%− (המרות 76→31)</b></td></tr>
+        <tr class="hl-good"><td class="name ru">Сиуд 30.05.26</td><td class="num">12.00</td><td class="num">6</td><td class="num">2.00</td><td class="num">60.00</td><td class="num">10</td><td><b>ה־CPA הזול בחשבון — קוצץ 80%−</b></td></tr>
+        <tr class="hl-good"><td class="name ru">пенсия 30.05.26</td><td class="num">0.00</td><td class="num">5</td><td class="num">—</td><td class="num">24.00</td><td class="num">10</td><td><b>CTR הכי גבוה (0.97%) — כמעט נעצר; חריגת חיוב, ראו למטה</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cols2">
+    <div class="panel">
+      <h4><span class="mark-good"></span> מה עובד</h4>
+      <ul>
+        <li><b>הערוץ הכי איכותי פר קליק:</b> ‏GA4 מודד ליאנדקס יחס המרה 10.9% לסשן — פי 1.6 מגוגל ופי 3.5 מטאבולה.</li>
+        <li><b>קמפייני "30.05.26"</b> — ‏$2.0–2.4 להמרה, ה־CTR הגבוה בחשבון. המספרים אומרים להגדיל, לא לכבות.</li>
+        <li><b>קבוצת Пицуим התחילה להמיר</b> (0→14) אחרי שבשבוע הקודם שרפה $35 על 219 קליקים בלי המרה — כנראה תוקנה מטרה שבורה ב־Metrica סביב 8.8. חלק מ"חולשת" העבר היה ארטיפקט מדידה.</li>
+        <li><b>שיפור ב־Pension Networks:</b> ‏CPA ‏10.7→8.3 $ אחרי הסטת תקציב פנימית נכונה.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h4><span class="mark-bad"></span> פחות טוב</h4>
+      <ul>
+        <li><b>הקיצוץ נחת על הממירים:</b> קבוצת Пенсия — המקור הזול והגדול ביותר ($3.99 להמרה, 76 המרות) — קוצצה 38%− ואיבדה 45 המרות. זה רוב ההפסד השבועי של החשבון.</li>
+        <li><b>מודעה בודדת בקמפיין LTC המרכזי</b> — אין A/B, ופסילה אחת משביתה את כל תנועת הסיעוד הרוסית.</li>
+        <li><b>מודעה 9649593049 ב־Pension Networks</b> — ‏$84 על 4 המרות ($21). האחות שלה עושה $6.97. מועמדת להשבתה.</li>
+        <li><b>חור מדידה:</b> ‏4 מתוך 5 הקמפיינים רצים <b>בלי UTM בכלל</b> — ההוצאה קיימת אבל בלתי־נראית לשיוך קמפיינים באנליטיקס/CRM.</li>
+        <li><b>חריגת חיוב:</b> ‏"пенсия 30.05.26" רשם 47 קליקים ו־5 המרות ב־$0.00, וסכומים עגולים חשודים ($60/$24/$12) — לבדוק מודל חיוב מול יאנדקס.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="recs">
+    <h4>המלצות Yandex</h4>
+    <ol>
+      <li><b>להחזיר תקציב לקבוצת Пенсия</b> — המנוף הכי מהיר להחזרת ~30–45 המרות שבועיות.</li>
+      <li><b>להגדיל את שני קמפייני "30.05.26"</b> במקום לחנוק אותם ($2.0–2.4 להמרה).</li>
+      <li><b>להוסיף UTM לכל הקמפיינים החדשים</b> (תבנית קיימת כבר ב־Pension Networks) — בלי זה שיוך הלידים ב־CRM שבור.</li>
+      <li><b>מודעה שנייה לקמפיין ה־LTC</b> + השבתת 9649593049 + ניקוי 28 המודעות המתות.</li>
+      <li><b>הערה:</b> הטקסטים המילוליים של המודעות אינם נגישים דרך ה־API של Supermetrics — סקירת קופי מלאה דורשת כניסה לממשק יאנדקס.</li>
+    </ol>
+  </div>
+
+  <!-- ================= TIKTOK ================= -->
+  <h2 class="sec" id="tiktok"><span class="swatch" style="background:var(--muted)"></span>TikTok — כבוי; ה"הפעלה מחדש" לא קרתה בפועל</h2>
+  <p class="secsub">חשבון MaximumCenter (₪). אפס הוצאה מ־14.7.2026. שני חשבונות נוספים אינם נגישים לחיבור הקיים.</p>
+
+  <div class="cols2">
+    <div class="panel">
+      <h4>מה מצאתי</h4>
+      <ul>
+        <li><b>2.8:</b> שני הקמפיינים הישנים הושבתו רשמית (delivery נעצר עוד ב־13.7 — נראה כמו גמר יתרה, לא החלטת ביצועים).</li>
+        <li><b>נוצר קמפיין חדש</b> <span dir="ltr">TIK | TRAFFIC | Pensia RU | TikTok-only</span> עם קבוצת "Pensia RU 45+" — אבל <b>אין בו מודעות</b>, המטא־דאטה ריק (טיוטה), <b>ויתרת החשבון 0 ₪</b>. שלושה חסמים — הוא לא ישודר כך.</li>
+        <li><b>ההיסטוריה מלמדת מה עבד:</b> מודעת לידים רוסית בודדת <span class="ru">"пенсия и пицуим центр максимум"</span> — ‏46 לידים ב־55.3 ₪ לליד (יוני–יולי).</li>
+        <li><b>ומה לא:</b> קמפיין תנועה עברי שרף 2,367 ₪ על 124 אלף קליקים ב־2 אג׳ — ‏<b>אפס המרות נמדדו</b>. קליקים זולים של טיקטוק בלי פיקסל עובד = אשליה.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h4>צ׳ק־ליסט להפעלה אמיתית</h4>
+      <ul>
+        <li>לטעון יתרה בחשבון (חסם קשיח — כלום לא ירוץ על 0 ₪).</li>
+        <li>לבנות מודעות בקמפיין השלד ולפרסם אותו מ־Draft.</li>
+        <li><b>לשקול מטרת Lead Gen במקום Traffic</b> — המסלול היחיד שהוכיח לידים בחשבון; אם Traffic — לתקן קודם מעקב המרות באתר.</li>
+        <li>לא למדוד לפי CTR/CPC (‏23–32% CTR נראים מדהים ואומרים כלום כאן) — רק לפי לידים ו־CPA.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ================= GA4 ================= -->
+  <h2 class="sec" id="ga4"><span class="swatch" style="background:var(--accent)"></span>GA4 — מה האתר עצמו אומר</h2>
+  <p class="secsub">בדיקת אמת בלתי־תלויה: מה שהפלטפורמות טוענות מול מה שקורה בפועל ב־maximumcenter.co.il.</p>
+
+  <div class="statgrid">
+    <div class="stat"><div class="l">סשנים L7</div><div class="v">17,443</div><div class="c up">‎+68%‎</div></div>
+    <div class="stat"><div class="l">אירועי מפתח L7</div><div class="v">1,212</div><div class="c">‎−5.5%‎ — אבל ראו אנומליית 3.8</div></div>
+    <div class="stat"><div class="l">שיא יומי</div><div class="v">3,362 סשנים</div><div class="c">14.8 — הכי גבוה בתקופה</div></div>
+    <div class="stat"><div class="l">הרכב המרות</div><div class="v">61% שיחות</div><div class="c">phone_call 741 · לידים 371 · וואטסאפ 100</div></div>
+  </div>
+
+  <div class="tablewrap">
+    <table class="data">
+      <thead><tr><th>מקור</th><th class="num">סשנים L7</th><th class="num">אירועי מפתח</th><th class="num">יחס המרה לסשן</th><th class="num">Engagement</th><th>קריאה</th></tr></thead>
+      <tbody>
+        <tr class="hl-good"><td class="name">Yandex (כל התיוגים)</td><td class="num">2,504</td><td class="num">273</td><td class="num"><b>10.9%</b></td><td class="num">34–40%</td><td>האיכותי ביותר — ודווקא קוצץ</td></tr>
+        <tr><td class="name">Google / cpc</td><td class="num">9,966</td><td class="num">672</td><td class="num">6.7%</td><td class="num">31%</td><td>הנפח הגדול; CVR ירד קלות עם הסקייל</td></tr>
+        <tr><td class="name">Taboola / cpc</td><td class="num">3,399</td><td class="num">104</td><td class="num">3.1%</td><td class="num">37%</td><td>תנועה אמיתית ומעורבת — ממירה חלש באתר</td></tr>
+        <tr class="hl-bad"><td class="name">Facebook (מתויג)</td><td class="num">~140</td><td class="num">1</td><td class="num">&lt;1%</td><td class="num">14%</td><td>הלידים בטפסים בפלטפורמה — לא באתר; התיוג שבור</td></tr>
+        <tr><td class="name">google / organic</td><td class="num">272</td><td class="num">32</td><td class="num">11.8%</td><td class="num">66%</td><td>קטן ואיכותי</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cols2">
+    <div class="panel">
+      <h4>ממצאים חשובים</h4>
+      <ul>
+        <li><b>אנומליית 3.8:</b> ‏488 אירועי מפתח ביום אחד (פי 4 מהרגיל), רובם phone_call על "PMax סיעוד RU MEDIA" — כנראה ירי כפול של מעקב שיחות. בלעדיו, השבוע האחרון בעצם <b>השתפר</b> גם בהמרות אתר.</li>
+        <li><b>phone_call נורה ~1.65 פעמים למשתמש ממיר</b> (741 אירועים / 450 משתמשים) — לדדפ לפני השוואה ללידים.</li>
+        <li><b>אירוע האיכות lead_accepted קיים אבל לא מוגדר Key Event</b> — הפלטפורמות מתאמנות על שיחות/טפסים ולא על לידים שהתקבלו.</li>
+        <li><b>סיעוד עברי מאשש את גוגל:</b> ‏HE SEARCH — ‏29% המרה לסשן (!), ‏HE PMAX — ‏11%. הנתון החזק ביותר בכל הביקורת.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h4>בעיות תיוג (UTM)</h4>
+      <ul>
+        <li>יאנדקס מפוצל ל־3 מדיומים (cpc / all_ru / media_ru) + כפילויות רישיות (yandex/Yandex/YandexDirect).</li>
+        <li>בפייסבוק מאקרו שבור — <span dir="ltr">{{adset.name}}</span> לא מתפענח, ושמות סטים בעברית נשלחים כ־utm_medium.</li>
+        <li>‏(not set) הכפיל את עצמו ל־405 סשנים עם 60 המרות ו־0% engagement — עקבי עם אירועי טלפון/שרת בלי שיוך.</li>
+        <li>קמפיינים חדשים ביאנדקס — בלי UTM בכלל (ראו סעיף יאנדקס).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ================= PLAN ================= -->
+  <h2 class="sec" id="plan">תוכנית פעולה מסודרת</h2>
+  <p class="secsub">לפי סדר השפעה על כסף. הערכות החיסכון/רווח מבוססות על נתוני השבוע האחרון.</p>
+
+  <div class="plan">
+    <div class="prio p1">
+      <h3><span class="tag">עכשיו</span> עצירת דימומים והסטת תקציב</h3>
+      <p class="why">שווי משוער: ‏3,000–4,500 ₪ לשבוע בשיפור יעילות, בלי תוספת תקציב.</p>
+      <ol>
+        <li><b>גוגל:</b> להגדיל תקציב סיעוד HE (חיפוש + PMAX, ‏CPA ‏43 ₪, ‏71% חשיפות אבודות על תקציב); להשבית את מודעת ה־ETA בתאונת עבודה RU ולצמצם את האשכול (459 ₪ להמרה); להחזיר את Demand Gen סיעוד RU.</li>
+        <li><b>טאבולה:</b> להעביר $70/יום מדסקטופ ($32.9) למובייל ($4.4); לחסום Linkvertise ואתרי דסקטופ עבריים ללא המרות.</li>
+        <li><b>יאנדקס:</b> להחזיר תקציב לקבוצת Пенсия ולקמפייני 30.05.26 — שם אבדו ~46 המרות שבועיות ב־CPA הזול במערך כולו.</li>
+        <li><b>פייסבוק:</b> לכבות/לתקן את קמפיין התנועה (REPLIES, תדירות 7.2, ‏0 לידים).</li>
+      </ol>
+    </div>
+    <div class="prio p2">
+      <h3><span class="tag">השבוע</span> קריאייטיב ותשתית קמפיינים</h3>
+      <ol>
+        <li>להשלים את מודעות "פנסיות חיפוש HE" ל־10+ כותרות לפי תבנית סיעוד HE; לתקן "פיצוים"→"פיצויים".</li>
+        <li>לתקן את כל שגיאות הרוסית: ‏выпалты, пологается (גוגל+פייסבוק), сиюди, пицум, добится, даные, ‏MAXIMU הקטוע, ‏"Высокий % успешный дел"; ואת התיאור הקטוע "…Данное" בסיעודי RU.</li>
+        <li>שכבת מילות שלילה בגוגל: מותגי מבטחים + битуах леуми זקנה + "gov".</li>
+        <li>פייסבוק: לאחד 21→3–5 מודעות באובדן כושר; להסיט תקציב סיעוד למודעה "-13"; לתקן יעד יוטיוב ברימרקטינג.</li>
+        <li>טאבולה: לשגר את 4 קמפייני העברית המוכנים; לדחוף את הקריאייטיב המורעב ($2.94).</li>
+        <li>לתקן Sitelink פסול (Битуах Леуми, מותג RU) ולבדוק את שלל ה־"Approved (limited)".</li>
+        <li>טיקטוק — החלטה: או לממן+לבנות מודעות (עדיף Lead Gen כמו המסלול שהוכיח 55 ₪/ליד), או לסגור את הפרק.</li>
+      </ol>
+    </div>
+    <div class="prio p3">
+      <h3><span class="tag">תשתית</span> מדידה ושיוך</h3>
+      <ol>
+        <li>תקן UTM אחיד לכל הפלטפורמות (יאנדקס — להוסיף בכלל; פייסבוק — לתקן מאקרו; אחידות source/medium).</li>
+        <li>לבדוק את ירי ה־phone_call הכפול (אנומליית 3.8 + ‏1.65 אירועים/משתמש) לפני שמסיקים מסקנות מהמרות.</li>
+        <li>להגדיר את lead_accepted כ־Key Event ולשקול אופטימיזציית קמפיינים עליו.</li>
+        <li>לוודא אילו כללי המרה נספרים ב"פעולות" של טאבולה, ודדופ לידים פיקסל/טפסים בפייסבוק.</li>
+        <li>‏PMax: לשלוף את טקסטי ה־Asset Groups (לא נגישים דרך הדוח הנוכחי) לביקורת קופי משלימה.</li>
+      </ol>
+    </div>
+  </div>
+
+  <footer class="src">
+    <b>מקורות ומגבלות ידועות:</b>
+    <ul>
+      <li>נתונים: Supermetrics API — ‏Google Ads, Meta, Taboola, Yandex.Direct, TikTok, GA4. נשלף 15.8.2026 בבוקר. מטבעות: גוגל וטיקטוק ₪; פייסבוק, טאבולה ויאנדקס $.</li>
+      <li>המרות גוגל בשיטת שיוך מבוזר (ערכים עשרוניים); נתוני 13–14.8 עשויים עוד להתעדכן כלפי מעלה.</li>
+      <li>‏12 חשבונות פייסבוק משותפים אינם ברישיון ה־Supermetrics ולא נסקרו; טקסטים של PMax Asset Groups ושל מודעות יאנדקס אינם חשופים דרך ה־API.</li>
+      <li>"פעולות" טאבולה = כל כללי ההמרה יחד; המרות יאנדקס = יעדי Metrica.</li>
+    </ul>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var css = getComputedStyle(document.documentElement);
+  function tok(n) { return css.getPropertyValue(n).trim(); }
+
+  var days = ['1.8','2.8','3.8','4.8','5.8','6.8','7.8','8.8','9.8','10.8','11.8','12.8','13.8','14.8'];
+  var conv = {
+    google:  [10.7,15.8,14.0,13.2,11.8,5.8,3.3,5.5,23.5,24.7,22.0,34.7,23.0,19.0],
+    taboola: [0,0,0,0,0,0,0,0,4,22,27,26,30,27],
+    yandex:  [25,19,25,22,26,40,30,13,12,18,26,30,27,15],
+    fb:      [1,3,1,1,1,2,1,0,4,3,7,8,9,10]
+  };
+  var spend = {
+    google:  [1031,1346,1659,1367,1428,1205,945,1046,1680,2622,2459,2392,2775,2553],
+    fb:      [13,19,20,19,19,21,22,20,101,126,113,128,221,211],
+    taboola: [0,0,0,0,0,0,0,0,61,150,148,143,161,189],
+    yandex:  [156,131,150,221,155,126,127,130,75,161,132,144,112,94]
+  };
+  var seriesMeta = [
+    { key:'google',  name:'Google Ads', color:'--c-google' },
+    { key:'taboola', name:'Taboola',    color:'--c-taboola' },
+    { key:'yandex',  name:'Yandex',     color:'--c-yandex' },
+    { key:'fb',      name:'Facebook',   color:'--c-fb' }
+  ];
+
+  /* ---- main multi-line chart ---- */
+  function mainChart() {
+    var host = document.getElementById('mainchart');
+    var W = 860, H = 330, padL = 34, padR = 96, padT = 14, padB = 30;
+    var pw = W - padL - padR, ph = H - padT - padB;
+    var ymax = 42;
+    function x(i) { return padL + pw * i / (days.length - 1); }
+    function y(v) { return padT + ph * (1 - v / ymax); }
+
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="המרות יומיות לפי פלטפורמה">';
+    [0,10,20,30,40].forEach(function (g) {
+      s += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y(g) + '" y2="' + y(g) + '" stroke="' + tok('--grid') + '" stroke-width="1"/>';
+      s += '<text x="' + (padL - 8) + '" y="' + (y(g) + 4) + '" text-anchor="end" font-size="11" fill="' + tok('--muted') + '">' + g + '</text>';
+    });
+    days.forEach(function (d, i) {
+      if (i % 2 === 0) s += '<text x="' + x(i) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11" fill="' + tok('--muted') + '">' + d + '</text>';
+    });
+    s += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="' + tok('--grid') + '" stroke-width="1.4"/>';
+
+    var endLabels = [];
+    seriesMeta.forEach(function (m) {
+      var col = tok(m.color), data = conv[m.key];
+      var pts = data.map(function (v, i) { return x(i).toFixed(1) + ',' + y(v).toFixed(1); }).join(' ');
+      s += '<polyline points="' + pts + '" fill="none" stroke="' + col + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      var lastV = data[data.length - 1];
+      s += '<circle cx="' + x(days.length - 1) + '" cy="' + y(lastV) + '" r="4" fill="' + col + '" stroke="' + tok('--surface') + '" stroke-width="2"/>';
+      endLabels.push({ y: y(lastV), color: col, txt: m.name + ' · ' + lastV });
+    });
+    /* collision-avoid end labels */
+    endLabels.sort(function (a, b) { return a.y - b.y; });
+    for (var i = 1; i < endLabels.length; i++) {
+      if (endLabels[i].y - endLabels[i - 1].y < 15) endLabels[i].y = endLabels[i - 1].y + 15;
+    }
+    endLabels.forEach(function (l) {
+      s += '<text x="' + (W - padR + 10) + '" y="' + (l.y + 4) + '" font-size="11.5" font-weight="600" fill="' + tok('--ink2') + '"><tspan fill="' + l.color + '">●</tspan> ' + l.txt + '</text>';
+    });
+    s += '<line id="xh" x1="0" x2="0" y1="' + padT + '" y2="' + (H - padB) + '" stroke="' + tok('--muted') + '" stroke-width="1" stroke-dasharray="3,3" style="display:none"/>';
+    s += '</svg>';
+
+    host.innerHTML = s + '<div class="tip" id="maintip"></div>';
+    var svg = host.querySelector('svg'), xh = host.querySelector('#xh'), tip = document.getElementById('maintip');
+
+    function onMove(ev) {
+      var r = svg.getBoundingClientRect();
+      var px = (ev.clientX - r.left) * (W / r.width);
+      var i = Math.round((px - padL) / pw * (days.length - 1));
+      if (i < 0 || i > days.length - 1) { onLeave(); return; }
+      xh.setAttribute('x1', x(i)); xh.setAttribute('x2', x(i)); xh.style.display = '';
+      var html = '<div class="t">' + days[i] + '.2026</div>';
+      seriesMeta.forEach(function (m) {
+        html += '<div class="r"><span><i style="background:' + tok(m.color) + '"></i>' + m.name + '</span><b>' + conv[m.key][i] + '</b></div>';
+      });
+      tip.innerHTML = html; tip.style.display = 'block';
+      var lx = (x(i) / W) * r.width;
+      tip.style.left = Math.min(Math.max(lx - 75, 0), r.width - 160) + 'px';
+      tip.style.top = '10px';
+    }
+    function onLeave() { xh.style.display = 'none'; tip.style.display = 'none'; }
+    svg.addEventListener('mousemove', onMove);
+    svg.addEventListener('mouseleave', onLeave);
+  }
+
+  /* ---- per-platform spend bars ---- */
+  function spark(hostId, data, unit) {
+    var host = document.getElementById(hostId);
+    if (!host) return;
+    var W = 860, H = 120, padL = 6, padR = 6, padT = 16, padB = 20;
+    var pw = W - padL - padR, ph = H - padT - padB;
+    var max = Math.max.apply(null, data);
+    var bw = pw / data.length;
+    var col = tok('--accent');
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="הוצאה יומית">';
+    s += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + (H - padB) + '" y2="' + (H - padB) + '" stroke="' + tok('--grid') + '"/>';
+    data.forEach(function (v, i) {
+      var h = max ? ph * v / max : 0;
+      var bx = padL + i * bw + 2, by = H - padB - h;
+      var isLast = i === data.length - 1;
+      s += '<rect x="' + bx.toFixed(1) + '" y="' + by.toFixed(1) + '" width="' + (bw - 4).toFixed(1) + '" height="' + Math.max(h, v > 0 ? 2 : 0).toFixed(1) + '" rx="3" fill="' + col + '" opacity="' + (isLast ? 1 : 0.55) + '"><title>' + days[i] + ': ' + v.toLocaleString() + ' ' + unit + '</title></rect>';
+      if (i % 2 === 0) s += '<text x="' + (bx + bw / 2 - 2) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="10" fill="' + tok('--muted') + '">' + days[i] + '</text>';
+      if (v === max && max > 0) s += '<text x="' + (bx + bw / 2 - 2) + '" y="' + (by - 4) + '" text-anchor="middle" font-size="10.5" font-weight="600" fill="' + tok('--ink2') + '">' + v.toLocaleString() + '</text>';
+    });
+    s += '</svg>';
+    host.innerHTML = s;
+  }
+
+  /* ---- accessibility data table ---- */
+  function table() {
+    var t = document.getElementById('dailytable');
+    var h = '<thead><tr><th>תאריך</th>';
+    seriesMeta.forEach(function (m) { h += '<th class="num">' + m.name + '</th>'; });
+    h += '</tr></thead><tbody>';
+    days.forEach(function (d, i) {
+      h += '<tr><td>' + d + '</td>';
+      seriesMeta.forEach(function (m) { h += '<td class="num">' + conv[m.key][i] + '</td>'; });
+      h += '</tr>';
+    });
+    t.innerHTML = h + '</tbody>';
+  }
+
+  function renderAll() {
+    mainChart();
+    spark('spark-google', spend.google, '₪');
+    spark('spark-fb', spend.fb, '$');
+    spark('spark-taboola', spend.taboola, '$');
+    spark('spark-yandex', spend.yandex, '$');
+    css = getComputedStyle(document.documentElement);
+  }
+  table();
+  renderAll();
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+      css = getComputedStyle(document.documentElement); renderAll();
+    });
+  }
+  new MutationObserver(function () { css = getComputedStyle(document.documentElement); renderAll(); })
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+})();
+</script>
